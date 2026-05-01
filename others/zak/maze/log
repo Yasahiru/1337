@@ -1,0 +1,32 @@
+Traceback (most recent call last):
+  File "/home/ixchele/Labo/curses/maze/maze.py", line 869, in <module>
+    main()
+    ~~~~^^
+  File "/home/ixchele/Labo/curses/maze/maze.py", line 861, in main
+    curses.wrapper(display, maze)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/curses/__init__.py", line 94, in wrapper
+    return func(stdscr, *args, **kwds)
+  File "/home/ixchele/Labo/curses/maze/maze.py", line 819, in display
+    displayer.menu()
+    ~~~~~~~~~~~~~~^^
+  File "/home/ixchele/Labo/curses/maze/maze.py", line 730, in menu
+    menu_func()
+    ~~~~~~~~~^^
+  File "/home/ixchele/Labo/curses/maze/maze.py", line 686, in generate
+    self.maze = MazeGenerator(
+                ~~~~~~~~~~~~~^
+        self.config["width"],
+        ^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+        self.config["exit"],
+        ^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/home/ixchele/Labo/curses/maze/mazegen/generator.py", line 54, in __init__
+    self.grid: Grid = Grid(self.width, self.height)
+                      ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ixchele/Labo/curses/maze/mazegen/grid.py", line 32, in __init__
+    [Cell(x, y) for x in range(width)]
+                         ~~~~~^^^^^^^
+TypeError: 'str' object cannot be interpreted as an integer
