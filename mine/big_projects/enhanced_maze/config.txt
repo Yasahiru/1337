@@ -1,0 +1,11 @@
+WIDTH=16
+HEIGHT=16
+
+#ENTRY=0,0
+EXIT=13, 12
+
+OUTPUT_FILE=maze.txt
+SEED=zakaria#sdfdsf
+
+ALGO=dfs
+PERFECT=0
