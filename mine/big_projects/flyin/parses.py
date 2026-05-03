@@ -82,3 +82,11 @@ class Parser:
 
 t = Parser("conf.txt")
 t.load()
+
+# print(type(t.cleared_zones))
+for key, val in t.cleared_zones.items():
+    print(key, ":")
+    for k, v in val.items():
+        print("\t", end="")
+        print(k, v, sep=" : ")
+    print()
