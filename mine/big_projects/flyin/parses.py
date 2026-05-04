@@ -1,9 +1,9 @@
 from typing import Dict, List
-import sys
+# import sys
 
 
 class Parser:
-    def __init__(self, file_path):
+    def __init__(self, file_path) -> None:
         self.file_path: str = file_path
         self.nb_drones: int = 0
         self.cleared_zones: Dict[str, str] = {}
@@ -21,10 +21,12 @@ class Parser:
                     connections.append(line)
 
             self.cleared_zones = self.parse_zones(zones)
+            self.cleared_connections = self.parse_connections(connections)
+
         except KeyboardInterrupt as e:
             print(e)
 
-    def _read_file(self, filename: str) -> None:
+    def _read_file(self, filename: str) -> List[str]:
         content = []
         with open(filename, "r") as f:
             for line in f:
@@ -38,7 +40,6 @@ class Parser:
         else:
             raise ValueError("nb_drones Should be at the top of the file!!")
         return content
-
 
     def parse_zones(self, zones: List[str]) -> Dict[str, List[str]]:
         filtered_zones = {}
@@ -79,11 +80,21 @@ class Parser:
                     res["meta_data"].update({d[0]: d[1]})
         return res
 
+    def parse_connections(self, conn: List[str]) -> Dict[str, List[str]]:
+        filtered_conn = {"zone1": "", "zone2": "", "meta_data": ""}
+
+        cleared_conn = []
+        for line in conn:
+            cleared_conn.append(line.split(":")[1])
+
+        cleared_conn = list(map(lambda s: s.strip(), cleared_conn))
+        # print(cleared_conn)
+
 
 t = Parser("conf.txt")
 t.load()
 
-# print(type(t.cleared_zones))
+print(type(t.cleared_zones))
 for key, val in t.cleared_zones.items():
     print(key, ":")
     for k, v in val.items():

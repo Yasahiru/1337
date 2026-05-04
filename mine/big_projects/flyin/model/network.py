@@ -9,7 +9,7 @@ class Network(BaseModel):
     nb_drones: StrictInt = Field(ge=1)
     start_hub: Zone = None
     end_hub: Zone = None
-    zones: Dict = None
+    zones: Dict = {}
     connections: List[Connection] = Field(default_factory=list)
     current_turn: StrictInt = 0
     capacity_info_enabled: bool = False

@@ -6,8 +6,8 @@ from connection import Connection
 
 class Drone(BaseModel):
     drone_id: str = Field(min_length=2)
-    curent_location: Union["Zone", "Connection"] = None
-    state: str = None
+    curent_location: Union["Zone", "Connection"]
+    state: str = Field(min_length=1)
     remaining_turns: StrictInt = 0
     is_delivered: bool = False
 
