@@ -1,5 +1,5 @@
 from typing import Dict, List
-# import sys
+import sys
 
 
 class Parser:
@@ -81,23 +81,42 @@ class Parser:
         return res
 
     def parse_connections(self, conn: List[str]) -> Dict[str, List[str]]:
-        filtered_conn = {"zone1": "", "zone2": "", "meta_data": ""}
-
+        filtered_conns = []
         cleared_conn = []
+
         for line in conn:
             cleared_conn.append(line.split(":")[1])
 
         cleared_conn = list(map(lambda s: s.strip(), cleared_conn))
-        # print(cleared_conn)
+        for c in cleared_conn:
+            zones= c.split("-")
+            meta_data = []
+            print(c)
+
+            if zones[1].find("[") != -1 and zones[1].find("]") != -1:
+                meta_data = zones[1].split("[")[1].replace("]", "").strip()
+                zones[1] = zones[1].split("[")[0].strip()
+
+            elif zones[1].find("[") == -1 or zones[1].find("]") == -1:
+                raise ValueError("Meta Data Should Be In '[]'")
+
+            filtered_conns.append({
+                "zone1": zones[0],
+                "zone2": zones[1],
+                "meta_data": meta_data
+            })
+        return (filtered_conns)
 
 
 t = Parser("conf.txt")
 t.load()
 
-print(type(t.cleared_zones))
-for key, val in t.cleared_zones.items():
-    print(key, ":")
-    for k, v in val.items():
-        print("\t", end="")
-        print(k, v, sep=" : ")
+# print(type(t.cleared_connections[0]))
+for l in t.cleared_connections:
+    # print(l)
+    # sys.exit()
+    for k, v in l.items():
+        # if not v:
+        #     continue
+        print(k, v, sep=" : ", end="\t")
     print()
