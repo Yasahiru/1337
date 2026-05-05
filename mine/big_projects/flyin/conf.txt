@@ -1,24 +1,39 @@
 # Number of drones
-nb_drones: 6
+#nb_drones: 6
 
 # Start and end hubs
-start_hub: [base 0 0 [color=green zone=test]
-end_hub: target 10 10 [color=yellow]
+#start_hub: [base 0 0 [color=green zone=test]
+#end_hub: target 10 10 [color=yellow]
 
 # Zones
-hub: A1 2 1 [color=blue]
-hub: B2 4 2 [zone=restricted color=red]
-hub: C3 6 3 [zone=priority color=green max_drones=2]
-hub: D4 8 5 [color=blue]
-hub: E5 5 6 [zone=blocked color=gray]
-hub: F6 7 8 [color=orange max_drones=3]
+#hub: A1 2 1 [color=blue]
+#hub: B2 4 2 [zone=restricted color=red]
+#hub: C3 6 3 [zone=priority color=green max_drones=2]
+#hub: D4 8 5 [color=blue]
+#hub: E5 5 6 [zone=blocked color=gray]
+#hub: F6 7 8 [color=orange max_drones=3]
 
 # Connections
-connection: B2-C3
-connection: base-A1
-connection: A1-B2
-connection: C3-D4 [max_link_capacity=2]
-connection: D4-target
-connection: A1-E5
-connection: E5-F6
-connection: F6-target
+#connection: B2-C3
+#connection: base-A1
+#connection: A1-B2
+#connection: C3-D4 [max_link_capacity=2]
+#connection: D4-target
+#connection: A1-E5
+#connection: E5-F6
+#connection: F6-target
+
+
+
+
+# Easy Level 1: Simple linear path
+nb_drones: 2
+
+start_hub: start 0 0 [color=green]
+hub: waypoint1 1 0 [color=blue]
+hub: waypoint2 2 0 [color=blue]
+end_hub: goal 3 0 [color=red]
+
+connection: start-waypoint1
+connection: waypoint1-waypoint2
+connection: waypoint2-goal

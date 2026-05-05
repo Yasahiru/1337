@@ -1,5 +1,4 @@
 from typing import Dict, List
-import sys
 
 
 class Parser:
@@ -43,6 +42,7 @@ class Parser:
 
     def parse_zones(self, zones: List[str]) -> Dict[str, List[str]]:
         filtered_zones = {}
+        c = 0
 
         for z in zones:
             if z.startswith("start_hub"):
@@ -53,6 +53,11 @@ class Parser:
                 zone_info = (z.split(":")[1]).strip()
                 val = self.clear_zone(zone_info)
                 filtered_zones["end_hub"] = val
+            elif z.startswith("hub"):
+                c += 1
+                zone_info = (z.split(":")[1]).strip()
+                val = self.clear_zone(zone_info)
+                filtered_zones[f"hub{c}"] = val
         return (filtered_zones)
 
     def clear_zone(self, zone: str) -> Dict[str, str]:
@@ -89,16 +94,15 @@ class Parser:
 
         cleared_conn = list(map(lambda s: s.strip(), cleared_conn))
         for c in cleared_conn:
-            zones= c.split("-")
+            zones = c.split("-")
             meta_data = []
-            print(c)
 
             if zones[1].find("[") != -1 and zones[1].find("]") != -1:
                 meta_data = zones[1].split("[")[1].replace("]", "").strip()
                 zones[1] = zones[1].split("[")[0].strip()
 
-            elif zones[1].find("[") == -1 or zones[1].find("]") == -1:
-                raise ValueError("Meta Data Should Be In '[]'")
+            # elif zones[1].find("[") == -1 or zones[1].find("]") == -1:
+            #     raise ValueError("Meta Data Should Be In '[]'")
 
             filtered_conns.append({
                 "zone1": zones[0],
@@ -111,12 +115,16 @@ class Parser:
 t = Parser("conf.txt")
 t.load()
 
-# print(type(t.cleared_connections[0]))
-for l in t.cleared_connections:
-    # print(l)
-    # sys.exit()
-    for k, v in l.items():
-        # if not v:
-        #     continue
+print("zones")
+for key, val in t.cleared_zones.items():
+    print(key, ":")
+    for k, v in val.items():
+        print("\t", end="")
+        print(k, v, sep=" : ")
+print()
+
+print("connections")
+for _ in t.cleared_connections:
+    for k, v in _.items():
         print(k, v, sep=" : ", end="\t")
     print()
