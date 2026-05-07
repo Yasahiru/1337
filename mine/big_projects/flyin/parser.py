@@ -101,8 +101,6 @@ class Parser:
                 meta_data = zones[1].split("[")[1].replace("]", "").strip()
                 zones[1] = zones[1].split("[")[0].strip()
 
-            # elif zones[1].find("[") == -1 or zones[1].find("]") == -1:
-            #     raise ValueError("Meta Data Should Be In '[]'")
 
             filtered_conns.append({
                 "zone1": zones[0],
