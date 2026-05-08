@@ -1,8 +1,2 @@
 
 
-
-Parse connections:
-    1/ check if anything is none or in wrong typing
-    2/ check if the meta data exist: that the '[]' both exists.
-    3/ meta data should be a list ,and has a dict reperesenting the meta data
-
