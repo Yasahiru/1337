@@ -1,67 +1,83 @@
 from typing import Dict, List
-# import re
-# //
+import re
 
 
 class Parser:
     def __init__(self, file_path) -> None:
         self.file_path: str = file_path
         self.nb_drones: int = 0
-        self.cleared_zones: Dict[str, str] = {}
-        self.cleared_connections: Dict[str, str] = {}
         self.available_zones = []
+
+        self.zones: List[str] = []
+        self.connections: List[str] = []
 
     def load(self) -> None:
         try:
-            zones = []
-            connections = []
             content = self._read_file(self.file_path)
+
             for line in content:
-                if line.startswith(("hub", "start_hub", "end_hub")):
-                    zones.append(line)
-                elif line.startswith("connection"):
-                    connections.append(line)
-            self.cleared_zones = self.parse_zones(zones)
-            self.cleared_connections = self.parse_connections(connections)
+                if line[1].startswith(("hub", "start", "end")):
+                    self.parse_zone(line)
+                elif line[1].startswith("connection"):
+                    self.parse_connections(line)
+
         except KeyboardInterrupt as e:
             print(e)
 
     def _read_file(self, filename: str) -> List[str]:
+        zones = []
+        connections = []
         content = []
         with open(filename, "r") as f:
-            for line in f:
+            for index, line in enumerate(f, start=1):
                 if line.startswith("#") or line == "\n":
                     continue
                 else:
-                    content.append(line)
+                    content.append((index, line))
+                if line.startswith("connection"):
+                    connections.append(line)
+                    if not self.check_duplication(connections):
+                        raise ValueError(
+                            f"Duplication in line: {index} {line}"
+                        )
+                if line.startswith(("hub", "start_hub", "end_hub")):
+                    zones.append(line)
+                    if len(zones) != len(set(zones)):
+                        raise ValueError(f"Duplication in line: {index}")
 
-        if content[0].startswith("nb_drones"):
-            self.nb_drones = int(content[0].split(":")[1])
+        if content[0][1].startswith("nb_drones"):
+            self.nb_drones = int(content[0][1].split(":")[1])
+            content.reverse()
+            content.pop()
+            content.reverse()
         else:
-            raise ValueError("nb_drones Should be at the top of the file!!")
+            raise ValueError(
+                f"Error in line {content[0][0]}: "
+                "nb_drones Should be at the top of the file!!"
+                )
+
         return content
 
-    def parse_zones(self, zones: List[str]) -> Dict[str, List[str]]:
-        filtered_zones = {}
-        c = 0
-        for z in zones:
-            if z.startswith("start_hub:"):
-                zone_info = (z.split(":")[1]).strip()
-                val = self.clear_zone(zone_info)
-                filtered_zones["start_hub"] = val
-                self.available_zones.append(val["name"])
-            elif z.startswith("end_hub:"):
-                zone_info = (z.split(":")[1]).strip()
-                val = self.clear_zone(zone_info)
-                filtered_zones["end_hub"] = val
-                self.available_zones.append(val["name"])
-            elif z.startswith("hub:"):
-                c += 1
-                zone_info = (z.split(":")[1]).strip()
-                val = self.clear_zone(zone_info)
-                filtered_zones[f"hub{c}"] = val
-                self.available_zones.append(val["name"])
-        return (filtered_zones)
+    def parse_zone(self, z: tuple[int, str]) -> None:
+        reg = r"^(hub|start_hub|end_hub):\s+[^- ]+\s+\d+\s+\d+\s+(\[.*\])?$"
+        if not re.match(reg, z[1]):
+            raise ValueError(f"Error in line {z[0]}: {z[1]}")
+
+        if z[1].startswith("start_hub:"):
+            zone_info = (z[1].split(":")[1]).strip()
+            val = self.clear_zone(zone_info)
+            self.available_zones.append(val["name"])
+            self.zones.append(val)
+        elif z[1].startswith("end_hub:"):
+            zone_info = (z[1].split(":")[1]).strip()
+            val = self.clear_zone(zone_info)
+            self.available_zones.append(val["name"])
+            self.zones.append(val)
+        elif z[1].startswith("hub:"):
+            zone_info = (z[1].split(":")[1]).strip()
+            val = self.clear_zone(zone_info)
+            self.available_zones.append(val["name"])
+            self.zones.append(val)
 
     def clear_zone(self, zone: str) -> Dict[str, str]:
         inp = zone.split(" ")
@@ -71,6 +87,7 @@ class Parser:
             "y": int(inp[2]),
             "meta_data": {}
         }
+
         if len(inp) > 3:
             s = zone.rfind("[")
             e = zone.rfind("]") + 1
@@ -85,60 +102,32 @@ class Parser:
                     res["meta_data"].update({d[0]: d[1]})
         return res
 
-    def parse_connections(self, conn: List[str]) -> Dict[str, List[str]]:
-        filtered_conns = []
-        cleared_conn = []
-        for line in conn:
-            cleared_conn.append(line.split(":")[1])
-        cleared_conn = list(map(lambda s: s.strip(), cleared_conn))
-        for c in cleared_conn:
-            zones = c.split("-")
-            meta_data = []
-            if zones[1].find("[") != -1 and zones[1].find("]") != -1:
-                meta_data = zones[1].split("[")[1].replace("]", "").strip()
-                zones[1] = zones[1].split("[")[0].strip()
-            filtered_conns.append({
-                "zone1": zones[0],
-                "zone2": zones[1],
-                "meta_data": meta_data
-            })
-            for _ in filtered_conns:
-                for k, v in _.items():
-                    if k == "zone1":
-                        if v not in self.available_zones:
-                            raise ValueError("test")
-                    elif k == "zone2":
-                        if v not in self.available_zones:
-                            raise ValueError("test")
-        return (filtered_conns)
+    def parse_connections(self, conn: str) -> None:
+        cleared_conn = (conn[1].split(":")[1].strip())
+        zones = cleared_conn.split("-")
+        meta_data = []
 
-    def find_error_file():
-        ...
+        if zones[1].find("[") != -1 and zones[1].find("]") != -1:
+            meta_data = zones[1].split("[")[1].replace("]", "").strip()
+            zones[1] = zones[1].split("[")[0].strip()
 
+        if zones[0] not in self.available_zones:
+            raise ValueError(f"Uknown zone in line: {conn[0]}")
+        if zones[1] not in self.available_zones:
+            raise ValueError(f"Uknown Zone Name in line: {conn[0]}")
 
-try:
-    t = Parser("conf.txt")
-    t.load()
+        self.connections.append({
+            "zone1": zones[0],
+            "zone2": zones[1],
+            "meta_data": meta_data
+        })
 
-    print("zones")
-    for key, val in t.cleared_zones.items():
-        print(key, ":")
-        for k, v in val.items():
-            print("\t", end="")
-            print(k, v, sep=" : ")
-    print()
-
-    print("connections")
-    for _ in t.cleared_connections:
-        for k, v in _.items():
-            print(k, v, sep=" : ", end="\t")
-        print()
-
-    print()
-    print("available zones: ", t.available_zones)
-except KeyboardInterrupt as e:
-    print(e)
-
-
-# # re.match(r"^connection:\s+[^- ]-[^- ]\s+([.*])?$")
-# print(re.search(r"^hub:\s+[^- ]+\s+\d+\s+\d+\s+(\[.*\])?$", "hub: A1 2 1 [color=blue]"))
+    def check_duplication(self, lst: List[str]) -> bool:
+        seen = []
+        for _ in lst:
+            sor = sorted(_)
+            if sor not in seen:
+                seen.append(sor)
+            else:
+                return False
+        return True

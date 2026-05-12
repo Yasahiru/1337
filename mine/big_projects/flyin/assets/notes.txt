@@ -1,9 +1,4 @@
 
 
-Parsing:
-    1/ check that there is no duplicates.
-    2/ check that there is no connection containing a zone that wasn't declared before
-    3/ clean error messages
-
 Algorithm:
     ...
