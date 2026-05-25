@@ -8,10 +8,15 @@ def main() -> None:
     p = Parser(file_path)
     p.load()
 
+    v = Validator()
+    v.zones = p.zones
+    v.conns = p.connections
+
+    print(v.zones_obj())
+
 
 if __name__ == "__main__":
     main()
-
 
 # [
 #     {

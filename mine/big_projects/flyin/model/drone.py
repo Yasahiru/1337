@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from connection import Connection
+from .connection import Connection
 from typing import Union
 from zone import Zone
 

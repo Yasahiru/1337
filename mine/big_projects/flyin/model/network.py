@@ -11,8 +11,8 @@ class Network:
     end_hub: Zone
     zones: Dict
     connections: List[Connection]
+    adjacency: dict[Zone, list[Connection]]
     current_turn: int = 0
-    capacity_info_enabled: bool = False
 
     def capacity_Report(self) -> None:
         for conn in self.connections:
