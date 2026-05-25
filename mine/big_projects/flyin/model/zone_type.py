@@ -2,13 +2,13 @@ from enum import Enum
 
 
 class ZoneType(str, Enum):
-    NORMAL = "NORMAL"
-    BLOCKED = "BLOCKED"
-    RESTRICTED = "RESTRICTED"
-    PRIORITY = "PRIORITY"
+    NORMAL = "normal"
+    BLOCKED = "blocked"
+    RESTRICTED = "restricted"
+    PRIORITY = "priority"
 
 
 class ZoneRole(str, Enum):
-    START = "START"
-    REGULAR = "REGULAR"
-    END = "END"
+    START = "start"
+    REGULAR = "regular"
+    END = "end"

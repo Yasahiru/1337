@@ -14,3 +14,4 @@ class Drone:
     curent_location: Union["Zone", "Connection"]
     remaining_turns: int
     is_delivered: bool = False
+    planned_path: list[Zone]
