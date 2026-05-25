@@ -1,11 +1,11 @@
-WIDTH=16
-HEIGHT=16
+WIDTH=12
+HEIGHT=12
 
-#ENTRY=0,0
-EXIT=13, 12
+ENTRY=0,0
+EXIT=11, 11
 
 OUTPUT_FILE=maze.txt
-SEED=zakaria#sdfdsf
+#SEED=zakaria#sdfdsf
 
 ALGO=dfs
 PERFECT=0

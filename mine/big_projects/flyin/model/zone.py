@@ -1,8 +1,10 @@
 from dataclasses import dataclass, field
-from typing import Union
+from typing import Union, TYPE_CHECKING
 from .zone_type import ZoneType, ZoneRole
 from .color import Color
-from .drone import Drone
+
+if TYPE_CHECKING:
+    from .drone import Drone
 
 
 @dataclass
@@ -14,4 +16,4 @@ class Zone:
     color: Union[Color, None] = Color.Black
     zone_type: ZoneType = ZoneType.NORMAL
     zone_role: ZoneRole = ZoneRole.REGULAR
-    current_drones: list[Drone] = field(default_factory=list)
+    current_drones: list["Drone"] = field(default_factory=list)
