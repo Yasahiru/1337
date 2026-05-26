@@ -1,11 +1,26 @@
+import argparse
+from pathlib import Path
+
 from parser.parser import Parser
 from parser.validator import Validator
-import sys
+
+
+def build_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(
+        description="Load a map file, parse it, and print the parsed zones."
+    )
+    parser.add_argument("file_path", help="Path to the input map file")
+    return parser
 
 
 def main() -> None:
-    file_path = sys.argv[1]
-    p = Parser(file_path)
+    args = build_parser().parse_args()
+    file_path = Path(args.file_path)
+
+    if not file_path.exists():
+        raise FileNotFoundError(f"Input file does not exist: {file_path}")
+
+    p = Parser(str(file_path))
     p.load()
 
     v = Validator(p.zones, p.connections)

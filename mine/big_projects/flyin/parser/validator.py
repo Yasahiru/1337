@@ -1,5 +1,7 @@
-from model.zone import Zone
 from typing import List
+
+from model.zone import Zone
+from model.zone_type import ZoneRole, ZoneType
 
 
 class Validator:
@@ -10,23 +12,23 @@ class Validator:
     def zones_obj(self) -> List[Zone]:
         zones = []
         for zone in self.zones:
+            meta = zone.get("meta_data", {})
             obj = Zone(
                 name=zone["name"],
                 x=zone["x"],
                 y=zone["y"],
-                color=zone["meta_data"]["color"],
-                max_drones=(
-                    int(zone["meta_data"]["max_drones"])
-                    if "max_drones" in zone["meta_data"] else 1
-                ),
+                color=meta.get("color"),
+                max_drones=int(meta.get("max_drones", 1)),
                 zone_type=(
-                    zone["meta_data"]["zone"]
-                    if "zone" in zone["meta_data"] else None
+                    ZoneType(meta["zone"])
+                    if meta.get("zone") in ZoneType._value2member_map_
+                    else ZoneType.NORMAL
                 ),
                 zone_role=(
-                    zone["meta_data"]["zone_role"]
-                    if "zone_role" in zone["meta_data"] else None
-                )
+                    ZoneRole(meta["zone_role"])
+                    if meta.get("zone_role") in ZoneRole._value2member_map_
+                    else ZoneRole.REGULAR
+                ),
             )
             zones.append(obj)
         return zones

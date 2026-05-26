@@ -1,6 +1,9 @@
-from dataclasses import dataclass
-from typing import Union, TYPE_CHECKING
-from drone_state import DroneState
+from __future__ import annotations
+
+from dataclasses import dataclass, field
+from typing import TYPE_CHECKING, Union
+
+from .drone_state import DroneState
 
 if TYPE_CHECKING:
     from .connection import Connection
@@ -14,4 +17,4 @@ class Drone:
     curent_location: Union["Zone", "Connection"]
     remaining_turns: int
     is_delivered: bool = False
-    planned_path: list[Zone]
+    planned_path: list["Zone"] = field(default_factory=list)
