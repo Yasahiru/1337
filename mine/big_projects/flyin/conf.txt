@@ -2,7 +2,7 @@
 nb_drones: 6
 
 # Start and end hubs
-start_hub: [base 0 0 [color=green zone=test]
+start_hub: [base 0 0 [color=green]
 end_hub: target 10 10 [color=yellow]
 
 # Zones

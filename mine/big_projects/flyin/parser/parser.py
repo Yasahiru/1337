@@ -1,133 +1,246 @@
-from typing import Dict, List
+from __future__ import annotations
+
 import re
+from typing import Any, Dict, List
 
 
 class Parser:
-    def __init__(self, file_path) -> None:
+    pattern = r"^(start_hub|end_hub|hub):\s+([^\s\-]+)\s+(-?\d+)"
+    pattern += r"\s+(-?\d+)(?:\s+\[(.*)\])?$"
+
+    ZONE_LINE_PATTERN = re.compile(
+        pattern
+    )
+    CONNECTION_LINE_PATTERN = re.compile(
+        r'^connection:\s+([^\s\-]+)-([^\s\-]+)(?:\s+\[(.*)\])?$'
+    )
+    ALLOWED_ZONE_TYPES = {"normal", "blocked", "restricted", "priority"}
+    ALLOWED_ZONE_METADATA = {"zone", "color", "max_drones", "zone_role"}
+    ALLOWED_CONNECTION_METADATA = {"max_link_capacity"}
+
+    def __init__(self, file_path: str) -> None:
         self.file_path: str = file_path
         self.nb_drones: int = 0
-        self.available_zones = []
-
-        self.zones: List[str] = []
-        self.connections: List[str] = []
+        self.zones: List[Dict[str, Any]] = []
+        self.connections: List[Dict[str, Any]] = []
+        self._zone_names: set[str] = set()
+        self._connection_pairs: set[frozenset[str]] = set()
 
     def load(self) -> None:
-        try:
-            content = self._read_file(self.file_path)
+        content = self._read_file(self.file_path)
 
-            for line in content:
-                if line[1].startswith(("hub", "start", "end")):
-                    self.parse_zone(line)
-                elif line[1].startswith("connection"):
-                    self.parse_connections(line)
-
-        except KeyboardInterrupt as e:
-            print(e)
-
-    def _read_file(self, filename: str) -> List[str]:
-        zones = []
-        connections = []
-        content = []
-        with open(filename, "r") as f:
-            for index, line in enumerate(f, start=1):
-                if line.startswith("#") or line == "\n":
-                    continue
-                else:
-                    content.append((index, line))
-                if line.startswith("connection"):
-                    connections.append(line)
-                    if not self.check_duplication(connections):
-                        raise ValueError(
-                            f"Duplication in line: {index} {line}"
-                        )
-                if line.startswith(("hub", "start_hub", "end_hub")):
-                    zones.append(line)
-                    if len(zones) != len(set(zones)):
-                        raise ValueError(f"Duplication in line: {index}")
-
-        if content[0][1].startswith("nb_drones"):
-            self.nb_drones = int(content[0][1].split(":")[1])
-            content.reverse()
-            content.pop()
-            content.reverse()
-        else:
-            raise ValueError(
-                f"Error in line {content[0][0]}: "
-                "nb_drones Should be at the top of the file!!"
+        for line_number, line in content:
+            stripped = line.strip()
+            if stripped.startswith(("hub:", "start_hub:", "end_hub:")):
+                self.parse_zone(line_number, stripped)
+            elif stripped.startswith("connection:"):
+                self.parse_connection(line_number, stripped)
+            else:
+                raise ValueError(
+                    f"Error in line {line_number}: unsupported line format"
                 )
 
-        return content
+        self._validate_zones()
 
-    def parse_zone(self, z: tuple[int, str]) -> None:
-        reg = r"^(hub|start_hub|end_hub):\s+[^- ]+\s+\d+\s+\d+\s+(\[.*\])?$"
-        if not re.match(reg, z[1]):
-            raise ValueError(f"Error in line {z[0]}: {z[1]}")
+    def _read_file(self, filename: str) -> List[tuple[int, str]]:
+        content: List[tuple[int, str]] = []
+        with open(filename, "r", encoding="utf-8") as f:
+            for index, raw_line in enumerate(f, start=1):
+                line = raw_line.rstrip("\n")
+                stripped = line.strip()
+                if not stripped or stripped.startswith("#"):
+                    continue
+                content.append((index, line))
 
-        if z[1].startswith("start_hub:"):
-            zone_info = (z[1].split(":")[1]).strip()
-            val = self.clear_zone(zone_info)
-            self.available_zones.append(val["name"])
-            self.zones.append(val)
-        elif z[1].startswith("end_hub:"):
-            zone_info = (z[1].split(":")[1]).strip()
-            val = self.clear_zone(zone_info)
-            self.available_zones.append(val["name"])
-            self.zones.append(val)
-        elif z[1].startswith("hub:"):
-            zone_info = (z[1].split(":")[1]).strip()
-            val = self.clear_zone(zone_info)
-            self.available_zones.append(val["name"])
-            self.zones.append(val)
+        if not content:
+            raise ValueError("Error: input file is empty")
 
-    def clear_zone(self, zone: str) -> Dict[str, str]:
-        inp = zone.split(" ")
-        res = {
-            "name": inp[0],
-            "x": int(inp[1]),
-            "y": int(inp[2]),
-            "meta_data": {}
-        }
+        first_line = content[0][1].strip()
+        if not first_line.lower().startswith("nb_drones:"):
+            line_number = content[0][0]
+            raise ValueError(
+                f"Error in line {line_number}: first line must be"
+                " 'nb_drones: <positive_integer>'"
+            )
 
-        if len(inp) > 3:
-            s = zone.rfind("[")
-            e = zone.rfind("]") + 1
-            sep = zone[s:e]
-            if (len(sep) != 1):
-                sep = sep.replace("[", "")
-                sep = sep.replace("]", "")
-                sep.strip()
-                meta_data = sep.split(" ")
-                for data in meta_data:
-                    d = data.split("=")
-                    res["meta_data"].update({d[0]: d[1]})
-        return res
+        _, value = first_line.split(":", 1)
+        try:
+            self.nb_drones = int(value.strip())
+        except ValueError:
+            raise ValueError(
+                f"Error in line {content[0][0]}: "
+                "nb_drones must be a positive integer"
+            )
 
-    def parse_connections(self, conn: str) -> None:
-        cleared_conn = (conn[1].split(":")[1].strip())
-        zones = cleared_conn.split("-")
-        meta_data = []
+        if self.nb_drones <= 0:
+            raise ValueError(
+                f"Error in line {content[0][0]}: "
+                "nb_drones must be greater than zero"
+            )
 
-        if zones[1].find("[") != -1 and zones[1].find("]") != -1:
-            meta_data = zones[1].split("[")[1].replace("]", "").strip()
-            zones[1] = zones[1].split("[")[0].strip()
+        return content[1:]
 
-        if zones[0] not in self.available_zones:
-            raise ValueError(f"Uknown zone in line: {conn[0]}")
-        if zones[1] not in self.available_zones:
-            raise ValueError(f"Uknown Zone Name in line: {conn[0]}")
+    def parse_zone(self, line_number: int, line: str) -> None:
+        match = self.ZONE_LINE_PATTERN.match(line)
+        if not match:
+            raise ValueError(
+                f"Error in line {line_number}: invalid zone syntax"
+            )
 
-        self.connections.append({
-            "zone1": zones[0],
-            "zone2": zones[1],
-            "meta_data": meta_data
-        })
+        prefix, name, x_str, y_str, metadata_str = match.groups()
+        if "-" in name or " " in name:
+            raise ValueError(
+                f"Error in line {line_number}: invalid zone name '{name}'"
+            )
+        if name in self._zone_names:
+            raise ValueError(
+                f"Error in line {line_number}: duplicate zone name '{name}'"
+            )
 
-    def check_duplication(self, lst: List[str]) -> bool:
-        seen = []
-        for _ in lst:
-            sor = sorted(_)
-            if sor not in seen:
-                seen.append(sor)
-            else:
-                return False
-        return True
+        x = int(x_str)
+        y = int(y_str)
+        metadata = self._parse_metadata(
+            line_number, metadata_str, self.ALLOWED_ZONE_METADATA
+        )
+
+        zone_type = metadata.get("zone", "normal")
+        if zone_type not in self.ALLOWED_ZONE_TYPES:
+            raise ValueError(
+                f"Error in line {line_number}: invalid zone type '{zone_type}'"
+            )
+
+        max_drones = self._parse_positive_int(
+            line_number,
+            metadata.get("max_drones"),
+            "max_drones",
+            default=1,
+        )
+
+        self.zones.append(
+            {
+                "kind": prefix,
+                "name": name,
+                "x": x,
+                "y": y,
+                "meta_data": metadata,
+            }
+        )
+        self._zone_names.add(name)
+
+    def parse_connection(self, line_number: int, line: str) -> None:
+        match = self.CONNECTION_LINE_PATTERN.match(line)
+        if not match:
+            raise ValueError(
+                f"Error in line {line_number}: invalid connection syntax"
+            )
+
+        zone1, zone2, metadata_str = match.groups()
+        if zone1 not in self._zone_names:
+            raise ValueError(
+                f"Error in line {line_number}: unknown zone '{zone1}'"
+            )
+        if zone2 not in self._zone_names:
+            raise ValueError(
+                f"Error in line {line_number}: "
+                f"unknown zone '{zone2}'"
+            )
+        if zone1 == zone2:
+            raise ValueError(
+                f"Error in line {line_number}: "
+                "connection must link two different zones"
+            )
+
+        connection_key = frozenset({zone1, zone2})
+        if connection_key in self._connection_pairs:
+            raise ValueError(
+                f"Error in line {line_number}: duplicate connection "
+                f"between '{zone1}' and '{zone2}'"
+            )
+
+        metadata = self._parse_metadata(
+            line_number, metadata_str, self.ALLOWED_CONNECTION_METADATA
+        )
+        max_link_capacity = self._parse_positive_int(
+            line_number,
+            metadata.get("max_link_capacity"),
+            "max_link_capacity",
+            default=1,
+        )
+
+        self.connections.append(
+            {
+                "zone1": zone1,
+                "zone2": zone2,
+                "meta_data": metadata,
+            }
+        )
+        self._connection_pairs.add(connection_key)
+
+    def _parse_metadata(
+        self,
+        line_number: int,
+        metadata_str: str | None,
+        allowed_keys: set[str],
+    ) -> Dict[str, str]:
+        metadata: Dict[str, str] = {}
+        if not metadata_str:
+            return metadata
+
+        for token in metadata_str.split():
+            if "=" not in token:
+                raise ValueError(
+                    f"Error in line {line_number}: "
+                    f"invalid metadata token '{token}'"
+                )
+            key, value = token.split("=", 1)
+            if key not in allowed_keys:
+                raise ValueError(
+                    f"Error in line {line_number}: invalid "
+                    f"metadata key '{key}'"
+                )
+            if not value:
+                raise ValueError(
+                    f"Error in line {line_number}: metadata '{key}' "
+                    "must have a value"
+                )
+            metadata[key] = value
+
+        return metadata
+
+    def _parse_positive_int(
+        self,
+        line_number: int,
+        value: str | None,
+        field_name: str,
+        default: int = 1,
+    ) -> int:
+        if value is None:
+            return default
+        try:
+            parsed_value = int(value)
+        except ValueError:
+            raise ValueError(
+                f"Error in line {line_number}: "
+                f"{field_name} must be a positive integer"
+            )
+        if parsed_value <= 0:
+            raise ValueError(
+                f"Error in line {line_number}: "
+                f"{field_name} must be a positive integer"
+            )
+        return parsed_value
+
+    def _validate_zones(self) -> None:
+        start_count = sum(
+            1 for zone in self.zones if zone["kind"] == "start_hub"
+        )
+        end_count = sum(1 for zone in self.zones if zone["kind"] == "end_hub")
+
+        if start_count != 1:
+            raise ValueError(
+                f"Error: expected exactly one start_hub, found {start_count}"
+            )
+        if end_count != 1:
+            raise ValueError(
+                f"Error: expected exactly one end_hub, found {end_count}"
+            )

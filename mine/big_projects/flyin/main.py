@@ -6,8 +6,9 @@ from parser.validator import Validator
 
 
 def build_parser() -> argparse.ArgumentParser:
+    desc = "Load a map file, parse it, and print the parsed zones."
     parser = argparse.ArgumentParser(
-        description="Load a map file, parse it, and print the parsed zones."
+        description=desc
     )
     parser.add_argument("file_path", help="Path to the input map file")
     return parser
@@ -30,4 +31,7 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except Exception as e:
+        print(e)
