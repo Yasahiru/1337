@@ -1,4 +1,4 @@
-*This project has been created as part of the 42 curriculum by <login1>.
+*This project has been created as part of the 42 curriculum by <hloutman>.
 
 # Fly-in Drone Simulator
 
@@ -11,13 +11,13 @@ This project parses drone map files, validates the input format, and simulates m
 - The simulator handles zone capacities, connection capacities, and restricted-zone 2-turn movement.
 
 ## Progress
-- **Current completion: 55%**
+- **Current completion: 65%**
 - Completed:
   - Input parsing and validation
   - Zone and connection models
   - Basic simulation engine and move output
+  - Multi-path allocation for drone dispatch
 - Next step:
-  - Improve pathfinding and multi-path allocation
   - Add visual terminal output
   - Add tests, linting, and README cleanup
 

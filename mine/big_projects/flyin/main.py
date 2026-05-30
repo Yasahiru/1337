@@ -1,12 +1,13 @@
 import argparse
 from pathlib import Path
 
-from parser.parser import Parser
-from parser.validator import Validator
+from simulation import run_simulation
 
 
 def build_parser() -> argparse.ArgumentParser:
-    desc = "Load a map file, parse it, and print the parsed zones."
+    desc = "Load a map file, run the drone simulator, and print "
+    desc += "turn-by-turn moves."
+
     parser = argparse.ArgumentParser(
         description=desc
     )
@@ -21,13 +22,18 @@ def main() -> None:
     if not file_path.exists():
         raise FileNotFoundError(f"Input file does not exist: {file_path}")
 
-    p = Parser(str(file_path))
-    p.load()
+    result_lines, total_turns, visual_frames = run_simulation(
+        str(file_path)
+    )
 
-    v = Validator(p.zones, p.connections)
+    for line in result_lines:
+        print(line)
 
-    for z in v.zones_obj():
-        print(z)
+    print(f"Total turns: {total_turns}")
+    print()
+    for frame in visual_frames:
+        print(frame)
+        print()
 
 
 if __name__ == "__main__":

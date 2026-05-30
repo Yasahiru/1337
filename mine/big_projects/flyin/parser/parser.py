@@ -5,11 +5,11 @@ from typing import Any, Dict, List
 
 
 class Parser:
-    pattern = r"^(start_hub|end_hub|hub):\s+([^\s\-]+)\s+(-?\d+)"
-    pattern += r"\s+(-?\d+)(?:\s+\[(.*)\])?$"
+    z_pattern = r"^(start_hub|end_hub|hub):\s+([^\s\-]+)\s+(-?\d+)"
+    z_pattern += r"\s+(-?\d+)(?:\s+\[(.*)\])?$"
 
     ZONE_LINE_PATTERN = re.compile(
-        pattern
+        z_pattern
     )
     CONNECTION_LINE_PATTERN = re.compile(
         r'^connection:\s+([^\s\-]+)-([^\s\-]+)(?:\s+\[(.*)\])?$'

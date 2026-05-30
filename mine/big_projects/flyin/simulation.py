@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from heapq import heappop, heappush
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Set, Tuple
 
 from model.connection import Connection
 from model.zone import Zone
@@ -106,9 +106,9 @@ class Simulator:
         if self.start_zone is None or self.end_zone is None:
             raise ValueError("Start zone or end zone is missing")
 
-        path = self._find_path()
-        if not path:
-            raise ValueError("No valid path from start to end")
+        path_options = self._find_path_options()
+        if not path_options:
+            raise ValueError("No valid paths from start to end")
 
         self.start_zone.current_drones = []
         self.drones = []
@@ -117,10 +117,90 @@ class Simulator:
             drone = SimDrone(
                 drone_id=drone_id,
                 current_zone=self.start_zone,
-                path=path,
+                path=self._choose_path_for_drone(
+                    drone_id,
+                    path_options,
+                ),
             )
             self.drones.append(drone)
             self.start_zone.current_drones.append(drone)
+
+    def _find_path_options(self, max_paths: int = 3) -> List[List[Zone]]:
+        if self.start_zone is None or self.end_zone is None:
+            raise ValueError("Missing start or end zone")
+
+        paths: List[List[Zone]] = []
+        visited: Set[str] = {self.start_zone.name}
+        self._collect_candidate_paths(
+            self.start_zone,
+            visited,
+            [self.start_zone],
+            paths,
+            max_paths,
+        )
+        return sorted(paths, key=self._path_sort_key)[:max_paths]
+
+    def _collect_candidate_paths(
+        self,
+        current_zone: Zone,
+        visited: Set[str],
+        path: List[Zone],
+        results: List[List[Zone]],
+        max_paths: int,
+    ) -> None:
+        if len(results) >= max_paths:
+            return
+        if current_zone is self.end_zone:
+            results.append(path.copy())
+            return
+
+        next_zones: List[tuple[int, str, Zone]] = []
+        for connection in self.adjacency[current_zone.name]:
+            next_zone = (
+                connection.zone2
+                if connection.zone1 is current_zone
+                else connection.zone1
+            )
+            if next_zone.name in visited:
+                continue
+            if next_zone.zone_type == ZoneType.BLOCKED:
+                continue
+            next_zones.append(
+                (self._zone_cost(next_zone), next_zone.name, next_zone)
+            )
+
+        next_zones.sort(key=lambda item: (item[0], item[1]))
+
+        for _, _, next_zone in next_zones:
+            visited.add(next_zone.name)
+            path.append(next_zone)
+            self._collect_candidate_paths(
+                next_zone,
+                visited,
+                path,
+                results,
+                max_paths,
+            )
+            path.pop()
+            visited.remove(next_zone.name)
+
+    def _choose_path_for_drone(
+        self,
+        drone_id: int,
+        paths: List[List[Zone]],
+    ) -> List[Zone]:
+        if not paths:
+            raise ValueError("No paths available for drone assignment")
+        return paths[(drone_id - 1) % len(paths)]
+
+    def _path_sort_key(self, path: List[Zone]) -> Tuple[int, int]:
+        return (self._path_cost(path), len(path))
+
+    def _path_cost(self, path: List[Zone]) -> int:
+        return sum(self._zone_cost(zone) for zone in path[1:])
+
+    def _zone_cost(self, zone: Zone) -> int:
+        return 2 if zone.zone_type == ZoneType.RESTRICTED else 1
 
     def _find_path(self) -> List[Zone]:
         if self.start_zone is None or self.end_zone is None:
@@ -180,18 +260,56 @@ class Simulator:
     def _connection_name(self, connection: Connection) -> str:
         return f"{connection.zone1.name}-{connection.zone2.name}"
 
-    def run(self) -> List[str]:
+    def _render_grid(self, turn_number: int) -> str:
+        zones = list(self.zones_by_name.values())
+        xs = [zone.x for zone in zones]
+        ys = [zone.y for zone in zones]
+        min_x, max_x = min(xs), max(xs)
+        min_y, max_y = min(ys), max(ys)
+        width = max_x - min_x + 1
+        height = max_y - min_y + 1
+
+        grid: List[List[str]] = [
+            ["." for _ in range(width)] for _ in range(height)
+        ]
+
+        for zone in zones:
+            row = max_y - zone.y
+            col = zone.x - min_x
+            occupant_count = len(zone.current_drones)
+            cell_label = zone.name
+            if occupant_count > 0:
+                cell_label = f"{zone.name}({occupant_count})"
+            grid[row][col] = cell_label
+
+        column_width = max(
+            len(cell) for row in grid for cell in row
+        )
+        rows = [
+            " ".join(cell.center(column_width) for cell in row)
+            for row in grid
+        ]
+
+        header = f"Turn {turn_number}"
+        return "\n".join([header] + rows)
+
+    def run(self) -> tuple[List[str], int, List[str]]:
         if self.start_zone is None or self.end_zone is None:
             raise ValueError("Simulator not loaded")
 
         lines: List[str] = []
+        visuals: List[str] = []
         max_turns = 1000
+        turn_count = 0
+
+        visuals.append(self._render_grid(turn_count))
 
         while max_turns > 0:
             all_delivered = all(drone.delivered for drone in self.drones)
             if all_delivered:
                 break
             max_turns -= 1
+            turn_count += 1
             turn_moves: List[str] = []
 
             for drone in self.drones:
@@ -267,14 +385,15 @@ class Simulator:
 
             if turn_moves:
                 lines.append(" ".join(turn_moves))
+            visuals.append(self._render_grid(turn_count))
 
         if max_turns <= 0:
             raise RuntimeError("Simulation did not finish in time")
 
-        return lines
+        return lines, turn_count, visuals
 
 
-def run_simulation(file_path: str) -> List[str]:
+def run_simulation(file_path: str) -> tuple[List[str], int, List[str]]:
     simulator = Simulator(file_path)
     simulator.load()
     return simulator.run()
