@@ -260,49 +260,15 @@ class Simulator:
     def _connection_name(self, connection: Connection) -> str:
         return f"{connection.zone1.name}-{connection.zone2.name}"
 
-    def _render_grid(self, turn_number: int) -> str:
-        zones = list(self.zones_by_name.values())
-        xs = [zone.x for zone in zones]
-        ys = [zone.y for zone in zones]
-        min_x, max_x = min(xs), max(xs)
-        min_y, max_y = min(ys), max(ys)
-        width = max_x - min_x + 1
-        height = max_y - min_y + 1
 
-        grid: List[List[str]] = [
-            ["." for _ in range(width)] for _ in range(height)
-        ]
 
-        for zone in zones:
-            row = max_y - zone.y
-            col = zone.x - min_x
-            occupant_count = len(zone.current_drones)
-            cell_label = zone.name
-            if occupant_count > 0:
-                cell_label = f"{zone.name}({occupant_count})"
-            grid[row][col] = cell_label
-
-        column_width = max(
-            len(cell) for row in grid for cell in row
-        )
-        rows = [
-            " ".join(cell.center(column_width) for cell in row)
-            for row in grid
-        ]
-
-        header = f"Turn {turn_number}"
-        return "\n".join([header] + rows)
-
-    def run(self) -> tuple[List[str], int, List[str]]:
+    def run(self) -> tuple[List[str], int]:
         if self.start_zone is None or self.end_zone is None:
             raise ValueError("Simulator not loaded")
 
         lines: List[str] = []
-        visuals: List[str] = []
         max_turns = 1000
         turn_count = 0
-
-        visuals.append(self._render_grid(turn_count))
 
         while max_turns > 0:
             all_delivered = all(drone.delivered for drone in self.drones)
@@ -385,15 +351,14 @@ class Simulator:
 
             if turn_moves:
                 lines.append(" ".join(turn_moves))
-            visuals.append(self._render_grid(turn_count))
 
         if max_turns <= 0:
             raise RuntimeError("Simulation did not finish in time")
 
-        return lines, turn_count, visuals
+        return lines, turn_count
 
 
-def run_simulation(file_path: str) -> tuple[List[str], int, List[str]]:
+def run_simulation(file_path: str) -> tuple[List[str], int]:
     simulator = Simulator(file_path)
     simulator.load()
     return simulator.run()

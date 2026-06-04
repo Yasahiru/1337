@@ -22,18 +22,12 @@ def main() -> None:
     if not file_path.exists():
         raise FileNotFoundError(f"Input file does not exist: {file_path}")
 
-    result_lines, total_turns, visual_frames = run_simulation(
-        str(file_path)
-    )
+    result_lines, total_turns = run_simulation(str(file_path))
 
     for line in result_lines:
         print(line)
 
     print(f"Total turns: {total_turns}")
-    print()
-    for frame in visual_frames:
-        print(frame)
-        print()
 
 
 if __name__ == "__main__":
