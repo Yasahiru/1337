@@ -260,8 +260,6 @@ class Simulator:
     def _connection_name(self, connection: Connection) -> str:
         return f"{connection.zone1.name}-{connection.zone2.name}"
 
-
-
     def run(self) -> tuple[List[str], int]:
         if self.start_zone is None or self.end_zone is None:
             raise ValueError("Simulator not loaded")

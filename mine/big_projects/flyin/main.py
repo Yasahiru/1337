@@ -1,6 +1,5 @@
 import argparse
 from pathlib import Path
-
 from simulation import run_simulation
 
 
