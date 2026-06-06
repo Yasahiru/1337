@@ -1,8 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from heapq import heappop, heappush
-from typing import Dict, List, Optional, Set, Tuple
+from typing import Dict, List, Optional, Tuple
 
 from model.connection import Connection
 from model.zone import Zone
@@ -125,65 +124,6 @@ class Simulator:
             self.drones.append(drone)
             self.start_zone.current_drones.append(drone)
 
-    def _find_path_options(self, max_paths: int = 3) -> List[List[Zone]]:
-        if self.start_zone is None or self.end_zone is None:
-            raise ValueError("Missing start or end zone")
-
-        paths: List[List[Zone]] = []
-        visited: Set[str] = {self.start_zone.name}
-        self._collect_candidate_paths(
-            self.start_zone,
-            visited,
-            [self.start_zone],
-            paths,
-            max_paths,
-        )
-        return sorted(paths, key=self._path_sort_key)[:max_paths]
-
-    def _collect_candidate_paths(
-        self,
-        current_zone: Zone,
-        visited: Set[str],
-        path: List[Zone],
-        results: List[List[Zone]],
-        max_paths: int,
-    ) -> None:
-        if len(results) >= max_paths:
-            return
-        if current_zone is self.end_zone:
-            results.append(path.copy())
-            return
-
-        next_zones: List[tuple[int, str, Zone]] = []
-        for connection in self.adjacency[current_zone.name]:
-            next_zone = (
-                connection.zone2
-                if connection.zone1 is current_zone
-                else connection.zone1
-            )
-            if next_zone.name in visited:
-                continue
-            if next_zone.zone_type == ZoneType.BLOCKED:
-                continue
-            next_zones.append(
-                (self._zone_cost(next_zone), next_zone.name, next_zone)
-            )
-
-        next_zones.sort(key=lambda item: (item[0], item[1]))
-
-        for _, _, next_zone in next_zones:
-            visited.add(next_zone.name)
-            path.append(next_zone)
-            self._collect_candidate_paths(
-                next_zone,
-                visited,
-                path,
-                results,
-                max_paths,
-            )
-            path.pop()
-            visited.remove(next_zone.name)
-
     def _choose_path_for_drone(
         self,
         drone_id: int,
@@ -201,51 +141,6 @@ class Simulator:
 
     def _zone_cost(self, zone: Zone) -> int:
         return 2 if zone.zone_type == ZoneType.RESTRICTED else 1
-
-    def _find_path(self) -> List[Zone]:
-        if self.start_zone is None or self.end_zone is None:
-            raise ValueError("Missing start or end zone")
-
-        distances: Dict[str, int] = {
-            name: float("inf") for name in self.zones_by_name
-        }
-        previous: Dict[str, Optional[str]] = {
-            name: None for name in self.zones_by_name
-        }
-        distances[self.start_zone.name] = 0
-        queue: List[tuple[int, str]] = [(0, self.start_zone.name)]
-
-        while queue:
-            current_cost, current_name = heappop(queue)
-            if current_cost > distances[current_name]:
-                continue
-            if current_name == self.end_zone.name:
-                break
-
-            for connection in self.adjacency[current_name]:
-                if connection.zone1.name == current_name:
-                    next_zone = connection.zone2
-                else:
-                    next_zone = connection.zone1
-                if next_zone.zone_type == ZoneType.BLOCKED:
-                    continue
-                cost = 2 if next_zone.zone_type == ZoneType.RESTRICTED else 1
-                next_cost = current_cost + cost
-                if next_cost < distances[next_zone.name]:
-                    distances[next_zone.name] = next_cost
-                    previous[next_zone.name] = current_name
-                    heappush(queue, (next_cost, next_zone.name))
-
-        if previous[self.end_zone.name] is None:
-            return []
-
-        path_names: List[str] = []
-        current = self.end_zone.name
-        while current is not None:
-            path_names.insert(0, current)
-            current = previous[current]
-
-        return [self.zones_by_name[name] for name in path_names]
 
     def _find_connection(
         self,

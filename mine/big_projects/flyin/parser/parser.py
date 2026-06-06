@@ -1,19 +1,17 @@
 from __future__ import annotations
-
-import re
 from typing import Any, Dict, List
+import re
 
 
 class Parser:
     z_pattern = r"^(start_hub|end_hub|hub):\s+([^\s\-]+)\s+(-?\d+)"
     z_pattern += r"\s+(-?\d+)(?:\s+\[(.*)\])?$"
 
-    ZONE_LINE_PATTERN = re.compile(
-        z_pattern
-    )
+    ZONE_LINE_PATTERN = re.compile(z_pattern)
     CONNECTION_LINE_PATTERN = re.compile(
         r'^connection:\s+([^\s\-]+)-([^\s\-]+)(?:\s+\[(.*)\])?$'
     )
+
     ALLOWED_ZONE_TYPES = {"normal", "blocked", "restricted", "priority"}
     ALLOWED_ZONE_METADATA = {"zone", "color", "max_drones", "zone_role"}
     ALLOWED_CONNECTION_METADATA = {"max_link_capacity"}
@@ -109,7 +107,7 @@ class Parser:
                 f"Error in line {line_number}: invalid zone type '{zone_type}'"
             )
 
-        max_drones = self._parse_positive_int(
+        self._parse_positive_int(
             line_number,
             metadata.get("max_drones"),
             "max_drones",
@@ -160,7 +158,8 @@ class Parser:
         metadata = self._parse_metadata(
             line_number, metadata_str, self.ALLOWED_CONNECTION_METADATA
         )
-        max_link_capacity = self._parse_positive_int(
+
+        self._parse_positive_int(
             line_number,
             metadata.get("max_link_capacity"),
             "max_link_capacity",

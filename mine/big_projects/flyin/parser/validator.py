@@ -32,3 +32,5 @@ class Validator:
             )
             zones.append(obj)
         return zones
+
+    #  add the connection logic here
