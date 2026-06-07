@@ -1,6 +1,6 @@
 import argparse
 from pathlib import Path
-from simulation import run_simulation
+from simulation.simulation import run_simulation
 
 try:
     parser = argparse.ArgumentParser()
