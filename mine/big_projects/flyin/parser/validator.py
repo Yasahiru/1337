@@ -1,6 +1,6 @@
 from typing import List
-
 from model.zone import Zone
+from model.connection import Connection
 from model.zone_type import ZoneRole, ZoneType
 
 
@@ -8,6 +8,8 @@ class Validator:
     def __init__(self, zones, connections) -> None:
         self.zones = zones
         self.conns = connections
+        self.graph = {}
+        self.start = None
 
     def zones_obj(self) -> List[Zone]:
         zones = []
@@ -30,7 +32,25 @@ class Validator:
                     else ZoneRole.REGULAR
                 ),
             )
+            if zone["kind"] == "start_hub":
+                self.start = obj.name
+                obj.zone_role = ZoneRole.START
+            elif zone["kind"] == "end_hub":
+                obj.zone_role = ZoneRole.END
+
             zones.append(obj)
         return zones
 
-    #  add the connection logic here
+    def connection_obj(self) -> List[Zone]:
+        connections = []
+
+        for conn in self.conns:
+            meta = conn.get("meta_data", {})
+            obj = Connection(
+                zone1=conn.get("zone1"),
+                zone2=conn.get("zone2"),
+                current_drones=0,
+                max_link_capacity=int(meta.get("max_link_capacity", 1))
+            )
+            connections.append(obj)
+        return connections

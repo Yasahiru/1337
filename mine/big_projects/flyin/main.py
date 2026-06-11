@@ -1,19 +1,35 @@
-import argparse
-from pathlib import Path
-from simulation.simulation import run_simulation
+import sys
+from parser.parser import Parser
+from parser.validator import Validator
+from simulation.dijkstra import Algo
+from simulation.graph_builder import GraphBuilder
+
 
 try:
-    parser = argparse.ArgumentParser()
-    parser.add_argument("file_path")
-    file_path = Path(parser.parse_args().file_path)
+    # Parser
+    file_path = sys.argv[1]
+    parser = Parser(file_path)
+    parser.load()
 
-    if not file_path.exists():
-        raise FileNotFoundError(file_path)
+    # Validator
+    validator = Validator(
+        parser.zones,
+        parser.connections
+    )
+    # kind, name, x, y, meta_data
+    zones = validator.zones_obj()
+    conns = validator.connection_obj()
 
-    lines, turns = run_simulation(str(file_path))
+    # Graph builder
+    gbuild = GraphBuilder(zones, conns)
+    graph = gbuild.build_graph()
 
-    print("\n".join(lines))
-    print("Total turns:", turns)
+    # Algo
+    algo = Algo(zones, graph)
+    res = algo.load(validator.start)
+    dis = algo.distances
 
-except Exception as e:
+    print(graph)
+
+except KeyboardInterrupt as e:
     print(e)
