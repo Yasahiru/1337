@@ -1,3 +1,4 @@
+from typing import List, Dict
 
 
 class Algo:
@@ -7,7 +8,7 @@ class Algo:
         self.graph = graph
 
         self.distances = {}
-        self.previous = {}
+        self.previous: Dict = {}
         self.unvisited = set()
 
     def load(self, start: str) -> None:
@@ -46,3 +47,29 @@ class Algo:
                 break
             self.relax(current)
             self.unvisited.remove(current)
+
+    def get_path(self, end) -> List[str]:
+        path = []
+        zone = end
+        while zone:
+            path.append(zone)
+            zone = self.previous[zone]
+
+        path.reverse()
+        return (path)
+
+    def dfs(self, current, target, path, visited, all_paths):
+        if current == target:
+            all_paths.append(path.copy())
+            return
+
+        visited.add(current)
+        nei = self.graph[current]
+
+        for name, weight in nei:
+            if name not in visited:
+                path.append((name, weight))
+                self.dfs(name, target, path, visited, all_paths)
+                path.pop()
+
+        visited.remove(current)

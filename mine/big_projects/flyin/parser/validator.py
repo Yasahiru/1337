@@ -10,6 +10,7 @@ class Validator:
         self.conns = connections
         self.graph = {}
         self.start = None
+        self.end = None
 
     def zones_obj(self) -> List[Zone]:
         zones = []
@@ -36,6 +37,7 @@ class Validator:
                 self.start = obj.name
                 obj.zone_role = ZoneRole.START
             elif zone["kind"] == "end_hub":
+                self.end = obj.name
                 obj.zone_role = ZoneRole.END
 
             zones.append(obj)
