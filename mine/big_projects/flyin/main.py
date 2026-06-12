@@ -26,10 +26,13 @@ try:
 
     # Algo
     algo = Algo(zones, graph)
-    res = algo.load(validator.start)
+    res = algo.run(validator.start)
     dis = algo.distances
+    print(algo.unvisited)
 
-    print(graph)
+    # print("distances", algo.distances)
+    # print("unvisited", algo.unvisited)
+    # print("previous", algo.previous)
 
 except KeyboardInterrupt as e:
     print(e)

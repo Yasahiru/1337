@@ -11,6 +11,9 @@ class GraphBuilder:
 
     def build_graph(self) -> dict:
         for zone in self.zones:
+            if zone.zone_type == ZoneType.BLOCKED:
+                continue
+
             self.graph[zone.name] = []
 
             for conn in self.connections:
