@@ -43,9 +43,9 @@ class PathFinder:
             new_lst,
             key=lambda x: x[1]
         )
-        return self.extract_zone_names(sorted_lst)
+        return self.extract_path(sorted_lst)
 
-    def extract_zone_names(self, old_path):
+    def extract_path(self, old_path):
         return [
             item[0] if isinstance(item, tuple) else item for item in old_path
         ]
