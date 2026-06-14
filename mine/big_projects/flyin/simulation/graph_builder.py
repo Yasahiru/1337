@@ -42,7 +42,7 @@ class GraphBuilder:
         if zone.zone_type == ZoneType.NORMAL:
             return 1
         elif zone.zone_type == ZoneType.PRIORITY:
-            return 1
+            return 0.5
         elif zone.zone_type == ZoneType.RESTRICTED:
             return 2
         elif zone.zone_type == ZoneType.BLOCKED:

@@ -28,6 +28,7 @@ try:
 
     # for k, v in paths.graph.items():
     #     print(k, v, sep=": ")
+    print(mult_paths)
 
     sim = Simulator(
         nb_drones=parser.nb_drones,
