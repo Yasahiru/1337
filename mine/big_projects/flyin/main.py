@@ -5,7 +5,7 @@ from simulation.path_finder import PathFinder
 from simulation.simulator import Simulator
 
 
-try:
+def main():
     # Parser
     file_path = sys.argv[1]
     parser = Parser(file_path)
@@ -24,11 +24,13 @@ try:
     # Paths finder
     paths = PathFinder(zones, conns, validator.start, validator.end)
     paths.load()
+
+    # return 0
+
     mult_paths = paths.get_multiple_paths()
 
     # for k, v in paths.graph.items():
     #     print(k, v, sep=": ")
-    print(mult_paths)
 
     sim = Simulator(
         nb_drones=parser.nb_drones,
@@ -39,6 +41,14 @@ try:
         graph=paths.graph
     )
     sim.create_drones()
+    ass = sim.assign_drones_to_paths()
 
-except KeyboardInterrupt as e:
-    print(e)
+    for z in ass:
+        print(z)
+
+
+if __name__ == "__main__":
+    try:
+        main()
+    except KeyboardInterrupt as e:
+        print(e)

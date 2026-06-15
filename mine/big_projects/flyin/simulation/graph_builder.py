@@ -39,11 +39,9 @@ class GraphBuilder:
 
     @staticmethod
     def get_zone_cost(zone: Zone) -> int:
-        if zone.zone_type == ZoneType.NORMAL:
-            return 1
-        elif zone.zone_type == ZoneType.PRIORITY:
-            return 0.5
-        elif zone.zone_type == ZoneType.RESTRICTED:
+        if zone.zone_type == ZoneType.RESTRICTED:
             return 2
         elif zone.zone_type == ZoneType.BLOCKED:
             return -1
+        else:
+            return 1
