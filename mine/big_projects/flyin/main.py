@@ -25,12 +25,7 @@ def main():
     paths = PathFinder(zones, conns, validator.start, validator.end)
     paths.load()
 
-    # return 0
-
     mult_paths = paths.get_multiple_paths()
-
-    # for k, v in paths.graph.items():
-    #     print(k, v, sep=": ")
 
     sim = Simulator(
         nb_drones=parser.nb_drones,
@@ -41,10 +36,12 @@ def main():
         graph=paths.graph
     )
     sim.create_drones()
-    ass = sim.assign_drones_to_paths()
+    sim.assign_drones_to_paths()
 
-    for z in ass:
-        print(z)
+    for d in sim.drones:
+        # for r in d.assigned_path:
+        #     print(r)
+        print(sim.get_next_zone(d))
 
 
 if __name__ == "__main__":
