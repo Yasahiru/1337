@@ -30,6 +30,7 @@ def main():
     sim = Simulator(
         nb_drones=parser.nb_drones,
         start=validator.start,
+        end=validator.end,
         paths=mult_paths,
         zones=zones,
         conns=conns,
@@ -38,10 +39,11 @@ def main():
     sim.create_drones()
     sim.assign_drones_to_paths()
 
-    for d in sim.drones:
+    for d in sim.conns:
         # for r in d.assigned_path:
         #     print(r)
-        print(sim.get_next_zone(d))
+        # print(d.current_location)
+        print(d)
 
 
 if __name__ == "__main__":
