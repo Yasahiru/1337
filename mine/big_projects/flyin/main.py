@@ -38,12 +38,10 @@ def main():
     )
     sim.create_drones()
     sim.assign_drones_to_paths()
+    logs = sim.run()
 
-    for d in sim.conns:
-        # for r in d.assigned_path:
-        #     print(r)
-        # print(d.current_location)
-        print(d)
+    for log in logs:
+        print(log)
 
 
 if __name__ == "__main__":
