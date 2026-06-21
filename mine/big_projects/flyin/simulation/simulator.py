@@ -84,26 +84,23 @@ class Simulator:
 
     def move_normal_drone(self, drone: Drone) -> None:
         print("move_normal_drone")
-        # Change the current_location of drone
-        next_zone = self.get_next_zone(drone)
-        drone.current_location = next_zone
 
+        zone = drone.current_location
+        next_zone = self.get_next_zone(drone)
+
+        zone.current_drones.remove(drone)
         if next_zone is None:
             return
 
-        # Remove the drone from current_drones
-        zone = drone.current_location
-        zone.current_drones.remove(drone)
-
-        # Add drone to the next zone's drones
         next_zone.current_drones.append(drone)
+        drone.current_location = next_zone
 
         # increment the path index
         drone.path_index += 1
 
         # check if the drone has arrived
         if next_zone == self.end:
-            drone.state = DroneState.DELIVERED
+            drone.is_delivered = True
 
     def move_restricted_drone(self, drone: Drone) -> None:
         print("move_restricted_drone")
