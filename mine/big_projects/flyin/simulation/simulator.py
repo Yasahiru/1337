@@ -20,6 +20,7 @@ class Simulator:
         self.drones = []
 
     def create_drones(self) -> None:
+        print("create drones")
         for i in range(self.nb_drones):
             drone = Drone(
                 drone_id=f"D{i+1}",
@@ -29,6 +30,7 @@ class Simulator:
             self.drones.append(drone)
 
     def assign_drones_to_paths(self) -> List[Drone]:
+        print("assign_drones_to_paths")
         if not self.paths:
             raise ValueError("No valid paths found.")
 
@@ -41,12 +43,14 @@ class Simulator:
         return self.drones
 
     def get_next_zone(self, drone: Drone) -> Zone:
+        print("get_next_zone")
         next_idx = drone.path_index + 1
         if next_idx >= len(drone.assigned_path):
             return None
         return drone.assigned_path[next_idx]
 
     def find_connection(self, zone: Zone, dest: Zone) -> Optional[Connection]:
+        print("find_connection")
         for conn in self.conns:
             if conn.zone1 == zone or conn.zone2 == zone:
                 if conn.zone2 == dest:
@@ -56,6 +60,7 @@ class Simulator:
         return None
 
     def can_drone_move(self, drone: Drone) -> bool:
+        print("can_drone_move")
         next_zone = self.get_next_zone(drone)
         if not next_zone:
             return False
@@ -78,6 +83,7 @@ class Simulator:
         return True
 
     def move_normal_drone(self, drone: Drone) -> None:
+        print("move_normal_drone")
         # Change the current_location of drone
         next_zone = self.get_next_zone(drone)
         drone.current_location = next_zone
@@ -100,7 +106,7 @@ class Simulator:
             drone.state = DroneState.DELIVERED
 
     def move_restricted_drone(self, drone: Drone) -> None:
-
+        print("move_restricted_drone")
         zone = drone.current_location
         zone.current_drones.remove(drone)
 
@@ -116,6 +122,7 @@ class Simulator:
         drone.turns_left = 2
 
     def update_transit_drones(self):
+        print("update_transit_drones")
 
         for d in self.drones:
             if not d.current_connection:
@@ -153,21 +160,24 @@ class Simulator:
             for drone in self.drones:
                 if drone.is_delivered:
                     continue
-                if not self.can_drone_move(drone):
-                    continue
                 if drone.current_connection:
+                    continue
+                if not self.can_drone_move(drone):
                     continue
 
                 move = None
                 next_zone = self.get_next_zone(drone)
                 if next_zone.zone_type == ZoneType.RESTRICTED:
-                    move = f"{drone.drone_id}-{drone.current_connection}"
                     self.move_restricted_drone(drone)
+                    move = f"{drone.drone_id}-{drone.current_connection}"
                 else:
+                    move = f"{drone.drone_id}-{next_zone}"
                     self.move_normal_drone(drone)
-                turn_moves.append(move)
 
-            turn_logs.append("".join(turn_moves))
+                if move:
+                    turn_moves.append(move)
+
+            turn_logs.append(" ".join(turn_moves))
         return turn_logs
 
     def get_output():
