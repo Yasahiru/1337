@@ -1,5 +1,5 @@
 # Number of drones
-nb_drones: 6
+nb_drones: 3
 
 # Start and end hubs
 start_hub: base 0 0 [color=green]

@@ -34,10 +34,10 @@ class Validator:
                 ),
             )
             if zone["kind"] == "start_hub":
-                self.start = obj.name
+                self.start = obj
                 obj.zone_role = ZoneRole.START
             elif zone["kind"] == "end_hub":
-                self.end = obj.name
+                self.end = obj
                 obj.zone_role = ZoneRole.END
 
             zones.append(obj)
@@ -48,9 +48,12 @@ class Validator:
 
         for conn in self.conns:
             meta = conn.get("meta_data", {})
+            zone1 = conn.get("zone1")
+            zone2 = conn.get("zone2")
             obj = Connection(
-                zone1=conn.get("zone1"),
-                zone2=conn.get("zone2"),
+                zone1=zone1,
+                zone2=zone2,
+                name=f"{zone1}-{zone2}",
                 current_drones=0,
                 max_link_capacity=int(meta.get("max_link_capacity", 1))
             )

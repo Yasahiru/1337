@@ -25,9 +25,9 @@ class PathFinder:
         )
         all_paths = []
         algo.dfs(
-            self.start,
-            self.end,
-            [(self.start, 0)],
+            self.start.name,
+            self.end.name,
+            [(self.start.name, 0)],
             set(),
             all_paths
         )

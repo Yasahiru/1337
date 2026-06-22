@@ -38,10 +38,14 @@ def main():
     )
     sim.create_drones()
     sim.assign_drones_to_paths()
-    logs = sim.run()
+    # logs = sim.run()
 
-    for log in logs:
-        print(log)
+    d = sim.drones[2]
+    nextz = sim.get_next_zone(d.current_location)
+    # print(sim.find_connection(d.current_drones, nextz))
+
+    # for log in logs:
+    #     print(log)
 
 
 if __name__ == "__main__":

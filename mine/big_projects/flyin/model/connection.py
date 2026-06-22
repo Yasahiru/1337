@@ -10,6 +10,7 @@ if TYPE_CHECKING:
 class Connection:
     zone1: "Zone"
     zone2: "Zone"
+    name: str
     max_link_capacity: int
     current_drones: List["Drone"] = field(default_factory=list)
 
