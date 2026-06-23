@@ -1,0 +1,5 @@
+
+
+meta data: 
+
+    coordinates check (two zones must not have the same coords)

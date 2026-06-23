@@ -41,13 +41,7 @@ def main():
 
     logs = sim.run()
 
-    for d in sim.drones:
-        print(d.drone_id, end=": ")
-        for t in d.assigned_path:
-            print(t.name, end=" ")
-        print()
-
-    print()
+    print("turns: ", len(logs), end="\n\n")
     for log in logs:
         print(log)
 
@@ -76,18 +70,5 @@ def main():
 if __name__ == "__main__":
     try:
         main()
-    except KeyboardInterrupt as e:
+    except Exception as e:
         print(e)
-
-    # from model.zone import Zone
-    # from model.connection import Connection
-    # from model.drone import Drone
-
-    # z1 = Zone(name="Z1", x=0, y=0, max_drones=2)
-    # z2 = Zone(name="Z2", x=1, y=1, max_drones=2)
-    # c = Connection(z1, z2, f"{z1}-{z2}", 2)
-    # conns = [c]
-
-    # d = Drone("D1", ["Z1", "Z2", ], z1)
-    # res = sim.find_connection(d.current_location, z2)
-    # print(res)

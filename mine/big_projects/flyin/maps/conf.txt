@@ -1,5 +1,5 @@
 # Number of drones
-nb_drones: 3
+nb_drones: 13
 
 # Start and end hubs
 start_hub: base 0 0 [color=green]
@@ -12,11 +12,11 @@ hub: B2 4 2 [zone=priority color=red]
 hub: C3 6 3 [color=green max_drones=2]
 hub: D4 8 5 [color=blue]
 hub: E5 5 6 [zone=blocked color=gray]
-#hub: F6 7 8 [color=orange max_drones=3]
+#hub: F6 7 8 [color=orange max_drones=8]
 
 # Connections
 connection: base-A1
-connection: base-Z0
+connection: Z0-base
 connection: Z0-C3
 connection: A1-B2
 connection: A1-C3

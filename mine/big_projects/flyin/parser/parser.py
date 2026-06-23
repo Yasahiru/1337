@@ -202,6 +202,8 @@ class Parser:
                     f"Error in line {line_number}: metadata '{key}' "
                     "must have a value"
                 )
+            if key == "max_drones":
+                self._parse_positive_int(line_number, value, key)
             metadata[key] = value
 
         return metadata

@@ -153,7 +153,6 @@ class Simulator:
     def run(self) -> List[str]:
         turn_logs = []
 
-        turn = 0
         while not all(d.is_delivered for d in self.drones):
             turn_moves = []
             self.update_transit_drones()
@@ -182,9 +181,8 @@ class Simulator:
 
                 if move:
                     turn_moves.append(move)
-                turn += 1
-            turn_logs.append(" ".join(turn_moves))
-        print("turns: ", turn)
+            if len(turn_moves) > 0:
+                turn_logs.append(" ".join(turn_moves))
         return turn_logs
 
     def get_output():
