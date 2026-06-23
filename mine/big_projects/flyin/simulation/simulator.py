@@ -150,36 +150,10 @@ class Simulator:
                 d.is_delivered = True
                 continue
 
-    def can_drone_move1(self, drone):
-        next_zone = self.get_next_zone(drone)
-
-        print(f"\nChecking {drone.drone_id}")
-        print("Current:", drone.current_location)
-        print("Next:", next_zone.name if next_zone else None)
-
-        connection = self.find_connection(drone.current_location, next_zone)
-        print("Connection:", connection)
-
-        if connection:
-            print(
-                "Capacity:",
-                len(connection.current_drones),
-                "/",
-                connection.max_link_capacity,
-            )
-
-        if next_zone:
-            print(
-                "Zone:",
-                len(next_zone.current_drones),
-                "/",
-                next_zone.max_drones,
-            )
-
     def run(self) -> List[str]:
         turn_logs = []
 
-        # turn = 0
+        turn = 0
         while not all(d.is_delivered for d in self.drones):
             turn_moves = []
             self.update_transit_drones()
@@ -197,15 +171,20 @@ class Simulator:
                 next_zone = self.get_next_zone(drone)
                 if next_zone.zone_type == ZoneType.RESTRICTED:
                     self.move_restricted_drone(drone)
-                    move = f"{drone.drone_id}-{drone.current_connection}"
+                    conn = self.find_connection(
+                        drone.current_location,
+                        next_zone
+                    )
+                    move = f"{drone.drone_id}-{conn.name}"
                 else:
                     move = f"{drone.drone_id}-{next_zone.name}"
                     self.move_normal_drone(drone, next_zone)
 
                 if move:
                     turn_moves.append(move)
-
+                turn += 1
             turn_logs.append(" ".join(turn_moves))
+        print("turns: ", turn)
         return turn_logs
 
     def get_output():

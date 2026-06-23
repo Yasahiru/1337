@@ -39,10 +39,18 @@ def main():
     sim.create_drones()
     sim.assign_drones_to_paths()
 
-    sim.run()
+    logs = sim.run()
 
     for d in sim.drones:
-        print(d.current_location.name)
+        print(d.drone_id, end=": ")
+        for t in d.assigned_path:
+            print(t.name, end=" ")
+        print()
+
+    print()
+    for log in logs:
+        print(log)
+
     # debug
     # d = sim.drones[2]
     # print(d.assigned_path[0].name, d.assigned_path[1].name)

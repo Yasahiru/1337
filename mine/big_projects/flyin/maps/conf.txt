@@ -22,7 +22,7 @@ connection: A1-B2
 connection: A1-C3
 #connection: B2-C3
 connection: C3-D4 [max_link_capacity=2]
-connection: B2-D4 [max_link_capacity=2]
+#connection: B2-D4 [max_link_capacity=2]
 connection: D4-target
 #connection: A1-E5
 #connection: E5-F6
