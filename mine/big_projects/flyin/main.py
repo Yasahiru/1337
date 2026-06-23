@@ -38,12 +38,29 @@ def main():
     )
     sim.create_drones()
     sim.assign_drones_to_paths()
-    # logs = sim.run()
 
-    d = sim.drones[2]
-    nextz = sim.get_next_zone(d.current_location)
+    sim.run()
+
+    for d in sim.drones:
+        print(d.current_location.name)
+    # debug
+    # d = sim.drones[2]
+    # print(d.assigned_path[0].name, d.assigned_path[1].name)
+    # nxt = sim.get_next_zone(d)
+
+    # con = sim.find_connection(d.current_location, nxt)
+    # print("con: ", con)
+
+    # can = sim.can_drone_move(d)
+    # print(can)
+
+    # sim.move_normal_drone(d, nxt)
+    # print(nxt.name, d.current_location.name)
+
+    # sim.update_transit_drones()
+    # print(d.path_index)
+
     # print(sim.find_connection(d.current_drones, nextz))
-
     # for log in logs:
     #     print(log)
 
@@ -53,3 +70,16 @@ if __name__ == "__main__":
         main()
     except KeyboardInterrupt as e:
         print(e)
+
+    # from model.zone import Zone
+    # from model.connection import Connection
+    # from model.drone import Drone
+
+    # z1 = Zone(name="Z1", x=0, y=0, max_drones=2)
+    # z2 = Zone(name="Z2", x=1, y=1, max_drones=2)
+    # c = Connection(z1, z2, f"{z1}-{z2}", 2)
+    # conns = [c]
+
+    # d = Drone("D1", ["Z1", "Z2", ], z1)
+    # res = sim.find_connection(d.current_location, z2)
+    # print(res)

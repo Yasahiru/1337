@@ -19,7 +19,7 @@ class Simulator:
         self.drones = []
 
     def create_drones(self) -> None:
-        print("create drones")
+        # print("create drones")
         for i in range(self.nb_drones):
             drone = Drone(
                 drone_id=f"D{i+1}",
@@ -29,7 +29,7 @@ class Simulator:
             self.drones.append(drone)
 
     def assign_drones_to_paths(self) -> List[Drone]:
-        print("assign_drones_to_paths")
+        # print("assign_drones_to_paths")
         if not self.paths:
             raise ValueError("No valid paths found.")
 
@@ -44,22 +44,25 @@ class Simulator:
         return self.drones
 
     def get_next_zone(self, drone: Drone) -> Optional[Zone]:
-        print("get_next_zone")
+        # print("get_next_zone")
         next_idx = drone.path_index + 1
         if next_idx >= len(drone.assigned_path):
             return None
         return drone.assigned_path[next_idx]
 
     def find_connection(self, zone: Zone, dest: Zone) -> Optional[Connection]:
-        print("find_connection")
+        # print("\n find_connection")
         for conn in self.conns:
-            if conn.zone1 == zone or conn.zone2 == zone:
-                if conn.zone2 == dest or conn.zone1 == dest:
+            if conn.zone1 == zone.name:
+                if conn.zone2 == dest.name:
+                    return conn
+            elif conn.zone2 == zone.name:
+                if conn.zone1 == dest.name:
                     return conn
         return None
 
     def can_drone_move(self, drone: Drone) -> bool:
-        print("can_drone_move")
+        # print("can_drone_move")
         next_zone = self.get_next_zone(drone)
         if not next_zone:
             return False
@@ -82,7 +85,7 @@ class Simulator:
         return True
 
     def move_normal_drone(self, drone: Drone, next_zone: Zone) -> None:
-        # print("move_normal_drone")
+        # print("\nmove_normal_drone")
 
         zone = drone.current_location
         zone.current_drones.remove(drone)
@@ -100,7 +103,7 @@ class Simulator:
             drone.is_delivered = True
 
     def move_restricted_drone(self, drone: Drone) -> None:
-        print("move_restricted_drone")
+        # print("move_restricted_drone")
         zone = drone.current_location
         zone.current_drones.remove(drone)
 
@@ -116,7 +119,7 @@ class Simulator:
         drone.turns_left = 2
 
     def update_transit_drones(self):
-        print("update_transit_drones")
+        # print("\nupdate_transit_drones")
 
         for d in self.drones:
             if not d.current_connection:
@@ -190,7 +193,7 @@ class Simulator:
                     continue
 
                 move = None
-                print("run", drone)
+
                 next_zone = self.get_next_zone(drone)
                 if next_zone.zone_type == ZoneType.RESTRICTED:
                     self.move_restricted_drone(drone)

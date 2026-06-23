@@ -12,7 +12,7 @@ class Connection:
     zone2: "Zone"
     name: str
     max_link_capacity: int
-    current_drones: List["Drone"] = field(default_factory=list)
+    current_drones: List["Drone"]
 
     def current_drone_count(self) -> int:
         return len(self.current_drones)

@@ -54,7 +54,7 @@ class Validator:
                 zone1=zone1,
                 zone2=zone2,
                 name=f"{zone1}-{zone2}",
-                current_drones=0,
+                current_drones=[],
                 max_link_capacity=int(meta.get("max_link_capacity", 1))
             )
             connections.append(obj)
