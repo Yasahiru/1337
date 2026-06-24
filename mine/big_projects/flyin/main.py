@@ -39,32 +39,8 @@ def main():
     sim.create_drones()
     sim.assign_drones_to_paths()
 
-    logs = sim.run()
-
-    print("turns: ", len(logs), end="\n\n")
-    for log in logs:
-        print(log)
-
-    # debug
-    # d = sim.drones[2]
-    # print(d.assigned_path[0].name, d.assigned_path[1].name)
-    # nxt = sim.get_next_zone(d)
-
-    # con = sim.find_connection(d.current_location, nxt)
-    # print("con: ", con)
-
-    # can = sim.can_drone_move(d)
-    # print(can)
-
-    # sim.move_normal_drone(d, nxt)
-    # print(nxt.name, d.current_location.name)
-
-    # sim.update_transit_drones()
-    # print(d.path_index)
-
-    # print(sim.find_connection(d.current_drones, nextz))
-    # for log in logs:
-    #     print(log)
+    sim.run()
+    sim.get_output()
 
 
 if __name__ == "__main__":

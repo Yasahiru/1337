@@ -17,6 +17,7 @@ class Simulator:
         self.conns = conns
         self.graph = graph
         self.drones = []
+        self.turn_logs = []
 
     def create_drones(self) -> None:
         # print("create drones")
@@ -151,8 +152,6 @@ class Simulator:
                 continue
 
     def run(self) -> List[str]:
-        turn_logs = []
-
         while not all(d.is_delivered for d in self.drones):
             turn_moves = []
             self.update_transit_drones()
@@ -182,8 +181,9 @@ class Simulator:
                 if move:
                     turn_moves.append(move)
             if len(turn_moves) > 0:
-                turn_logs.append(" ".join(turn_moves))
-        return turn_logs
+                self.turn_logs.append(" ".join(turn_moves))
 
-    def get_output():
-        ...
+    def get_output(self):
+        print("turns: ", len(self.turn_logs), end="\n\n")
+        for log in self.turn_logs:
+            print(log)
