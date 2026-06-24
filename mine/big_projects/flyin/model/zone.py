@@ -1,7 +1,7 @@
 from dataclasses import dataclass, field
 from typing import Union, TYPE_CHECKING
 from .zone_type import ZoneType, ZoneRole
-from .color import Color
+from visualization.color import Color
 
 if TYPE_CHECKING:
     from .drone import Drone
