@@ -40,7 +40,9 @@ def main():
     sim.assign_drones_to_paths()
 
     sim.run()
-    sim.get_output()
+    # sim.get_output()
+    for k, v in sim.graph.items():
+        print(k, v, sep=": ")
 
 
 if __name__ == "__main__":

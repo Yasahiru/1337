@@ -19,11 +19,14 @@ class PathFinder:
 
     def get_multiple_paths(self) -> list[List[str]]:
         self.load()
+
         algo = Algo(
             self.zones,
             self.graph,
         )
+
         all_paths = []
+
         algo.dfs(
             self.start.name,
             self.end.name,
