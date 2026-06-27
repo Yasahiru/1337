@@ -3,6 +3,7 @@ from parser.parser import Parser
 from parser.validator import Validator
 from simulation.path_finder import PathFinder
 from simulation.simulator import Simulator
+from visualization.visualizer import Visualizer
 
 
 def main():
@@ -42,8 +43,11 @@ def main():
     sim.run()
     sim.get_output()
 
-    # for k, v in sim.graph.items():
-    #     print(k, v, sep=": ")
+    v = Visualizer(
+        sim.zones,
+        sim.conns
+    )
+    v.run()
 
 
 if __name__ == "__main__":

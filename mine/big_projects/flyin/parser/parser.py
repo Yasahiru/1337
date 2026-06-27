@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Tuple, Set
 import re
 
 
@@ -21,7 +21,8 @@ class Parser:
         self.nb_drones: int = 0
         self.zones: List[Dict[str, Any]] = []
         self.connections: List[Dict[str, Any]] = []
-        self._zone_names: set[str] = set()
+        self.coords: List[Tuple] = []
+        self._zone_names: Set[str] = set()
         self._connection_pairs: set[frozenset[str]] = set()
 
     def load(self) -> None:
@@ -114,6 +115,13 @@ class Parser:
             default=1,
         )
 
+        coords = (x, y)
+        if self.is_coords_exist(coords):
+            raise ValueError(
+                f"Error in line {line_number}: "
+                f"Duplication in zone ({name}) coordinates '{coords}'"
+            )
+        self.coords.append(coords)
         self.zones.append(
             {
                 "kind": prefix,
@@ -124,6 +132,11 @@ class Parser:
             }
         )
         self._zone_names.add(name)
+
+    def is_coords_exist(self, coords: Tuple) -> bool:
+        for coord in self.coords:
+            if coord == coords:
+                return True
 
     def parse_connection(self, line_number: int, line: str) -> None:
         match = self.CONNECTION_LINE_PATTERN.match(line)

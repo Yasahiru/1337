@@ -1,44 +1,50 @@
 import pygame
 
 
-pygame.init()
-screen = pygame.display.set_mode((1280, 720))
-clock = pygame.time.Clock()
-running = True
+class Visualizer:
 
-player_pos = pygame.Vector2(screen.get_width() / 2, screen.get_height() / 2)
+    def __init__(self, zones, conns):
+        pygame.init()
+        pygame.display.set_caption("Flyin Simulation")
 
-clock = pygame.time.Clock()
-dt = 0
+        self.zones = zones
+        self.conns = conns
 
-while running:
-    # poll for events
-    # pygame.QUIT event means the user clicked X to close your window
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
+        self.width = 2200
+        self.height = 1200
+        self.clock = pygame.time.Clock()
+        self.screen = pygame.display.set_mode(
+            (self.width, self.height)
+        )
 
-    # fill the screen with a color to wipe away anything from last frame
-    screen.fill("white")
+    def run(self):
+        BACKGROUND = (240, 240, 240)
 
-    # RENDER YOUR GAME HERE
-    pygame.draw.circle(screen, "red", player_pos, 200)
+        running = True
+        while running:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    running = False
+            self.screen.fill(BACKGROUND)
 
-    keys = pygame.key.get_pressed()
-    if keys[pygame.K_w]:
-        player_pos.y -= 300 * dt
-    if keys[pygame.K_s]:
-        player_pos.y += 300 * dt
-    if keys[pygame.K_a]:
-        player_pos.x -= 300 * dt
-    if keys[pygame.K_d]:
-        player_pos.x += 300 * dt
+            # zones = [
+            #     [(255, 0, 0), (150, 350)],
+            #     [(0, 255, 0), (360, 350)],
+            #     [(0, 0, 255), (580, 350)],
+            #     [(0, 56, 0), (900, 350)]
+            # ]
 
-    # flip() the display to put your work on screen
-    pygame.display.flip()
+            x = 100
+            for zone in self.zones:
+                x *= 2
+                pygame.draw.circle(
+                    self.screen,
+                    (255, 0, 0),
+                    (zone.x + x, zone.y + x),
+                    100
+                )
 
-    # clock.tick(60)  # limits FPS to 60
-    dt = clock.tick(60) / 1000
+            pygame.display.flip()
+            self.clock.tick(60)
 
-
-pygame.quit()
+        pygame.quit()
