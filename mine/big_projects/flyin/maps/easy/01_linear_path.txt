@@ -1,3 +1,4 @@
+
 # Easy Level 1: Simple linear path
 nb_drones: 2
 
@@ -10,4 +11,3 @@ connection: start-waypoint1
 connection: start-waypoint2
 connection: waypoint1-goal
 connection: waypoint2-goal
-

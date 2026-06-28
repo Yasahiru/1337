@@ -7,13 +7,13 @@ end_hub: target 10 10 [color=yellow]
 
 
 # Zones
-hub: Z0 1 2 [zone=priority color=blue]
-hub: A1 2 1 [zone=normal color=blue]
-hub: B2 4 2 [zone=restricted color=red]
-hub: C3 6 3 [color=green max_drones=2 color=red]
-hub: D4 8 5 [color=blue color=yellow]
-hub: E5 5 6 [zone=blocked color=gray color=red]
-hub: F6 7 8 [color=orange max_drones=8 color=red]
+hub: Z0 100 100 [zone=priority color=blue]
+hub: A1 200 100 [zone=normal color=blue]
+hub: B2 400 200 [zone=restricted color=red]
+hub: C3 600 300 [color=green max_drones=2 color=red]
+hub: D4 800 500 [color=blue color=yellow]
+hub: E5 500 600 [zone=blocked color=gray color=red]
+hub: F6 700 800 [color=orange max_drones=8 color=red]
 
 # Connections
 connection: base-A1

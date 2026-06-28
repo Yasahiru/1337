@@ -1,4 +1,5 @@
 import pygame
+from visualization.color import get_color
 
 
 class Visualizer:
@@ -10,8 +11,8 @@ class Visualizer:
         self.zones = zones
         self.conns = conns
 
-        self.width = 2200
-        self.height = 1200
+        self.width = 1400
+        self.height = 800
         self.clock = pygame.time.Clock()
         self.screen = pygame.display.set_mode(
             (self.width, self.height)
@@ -27,21 +28,16 @@ class Visualizer:
                     running = False
             self.screen.fill(BACKGROUND)
 
-            # zones = [
-            #     [(255, 0, 0), (150, 350)],
-            #     [(0, 255, 0), (360, 350)],
-            #     [(0, 0, 255), (580, 350)],
-            #     [(0, 56, 0), (900, 350)]
-            # ]
-
-            x = 100
             for zone in self.zones:
-                x *= 2
+                x = zone.x
+                y = zone.y
+                color = get_color(zone.color)
+
                 pygame.draw.circle(
                     self.screen,
-                    (255, 0, 0),
-                    (zone.x + x, zone.y + x),
-                    100
+                    color,
+                    (x, y),
+                    100,
                 )
 
             pygame.display.flip()

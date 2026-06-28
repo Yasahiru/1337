@@ -1,3 +1,240 @@
+Yes. **That's actually even better.** You already have exactly the graph representation we need.
 
+```python
+graph = {
+    "base": [('A1', 1), ('Z0', 1)],
+    "A1": [('base', 1), ('B2', 2), ('C3', 1)],
+    ...
+}
+```
 
-if nb_frones = 0
+This is an **adjacency list**, which is the perfect input for a layout algorithm.
+
+---
+
+## Here's the plan
+
+We're going to build the visualizer in **three stages**.
+
+### Stage 1 — Compute each node's level (BFS)
+
+Starting from the start node (`base`), run a BFS.
+
+Example:
+
+```
+base
+ |
+ +--A1
+ |
+ +--Z0
+```
+
+After BFS you'll have:
+
+```python
+levels = {
+    "base": 0,
+    "A1": 1,
+    "Z0": 1,
+    "B2": 2,
+    "C3": 2,
+    "D4": 3,
+    "target": 4,
+    "F6": 5,
+}
+```
+
+Notice this isn't drawing anything yet.
+
+It's just saying:
+
+> "How far is each node from the start?"
+
+---
+
+### Stage 2 — Group nodes by level
+
+Convert
+
+```python
+{
+    "base":0,
+    "A1":1,
+    "Z0":1,
+    "B2":2,
+    "C3":2
+}
+```
+
+into
+
+```python
+{
+    0: ["base"],
+    1: ["A1", "Z0"],
+    2: ["B2", "C3"],
+    3: ["D4"],
+    4: ["target"],
+    5: ["F6"]
+}
+```
+
+Now you know which nodes belong in the same vertical column.
+
+---
+
+### Stage 3 — Compute coordinates
+
+Suppose
+
+```python
+LEVEL_GAP = 220
+NODE_GAP = 150
+```
+
+Then
+
+```
+Level 0
+x = 100
+
+base
+```
+
+```
+Level 1
+x = 320
+
+A1
+
+Z0
+```
+
+```
+Level 2
+x = 540
+
+B2
+
+C3
+```
+
+etc.
+
+The result becomes
+
+```python
+positions = {
+    "base": (100,300),
+    "A1": (320,220),
+    "Z0": (320,380),
+    "B2": (540,220),
+    "C3": (540,380),
+    ...
+}
+```
+
+---
+
+## Why BFS instead of DFS?
+
+Because BFS naturally gives you layers.
+
+DFS would produce
+
+```
+base
+ ↓
+A1
+ ↓
+B2
+ ↓
+D4
+ ↓
+target
+```
+
+which would place almost everything in a single long line.
+
+BFS spreads the graph horizontally, which is exactly what we want for visualization.
+
+---
+
+# One improvement
+
+Your graph currently stores **zone names**.
+
+```python
+"A1": [('B2', 2)]
+```
+
+That's okay for BFS.
+
+But for drawing, you'll eventually need the actual `Zone` objects because they contain things like:
+
+* `current_drones`
+* `zone_type`
+* `zone_role`
+
+So I would create a lookup once in your `Visualizer`:
+
+```python
+self.zone_by_name = {
+    zone.name: zone
+    for zone in self.zones
+}
+```
+
+Then whenever BFS gives you `"A1"`:
+
+```python
+zone = self.zone_by_name["A1"]
+```
+
+You now have the complete object.
+
+---
+
+# The roadmap
+
+We're going to build exactly these methods:
+
+```python
+class Visualizer:
+
+    def compute_levels(self):
+        ...
+```
+
+↓
+
+```python
+def group_by_level(self):
+    ...
+```
+
+↓
+
+```python
+def compute_positions(self):
+    ...
+```
+
+↓
+
+```python
+def draw_connections(self):
+    ...
+```
+
+↓
+
+```python
+def draw_zones(self):
+    ...
+```
+
+Each method will be about **15–30 lines**, keeping the code clean and easy to debug.
+
+I recommend we start with `compute_levels()` first, because every other step depends on it.
