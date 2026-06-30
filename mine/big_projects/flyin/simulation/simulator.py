@@ -18,6 +18,7 @@ class Simulator:
         self.graph = graph
         self.drones = []
         self.turn_logs = []
+        self.frames = []
 
     ANSI_COLORS: dict[str, str] = {
         # Standard ANSI
@@ -240,6 +241,8 @@ class Simulator:
     def run(self) -> None:
         while not all(d.is_delivered for d in self.drones):
             turn_moves = []
+            frame = {}
+
             self.update_transit_drones()
 
             for drone in self.drones:
@@ -251,7 +254,6 @@ class Simulator:
                     continue
 
                 move = None
-
                 next_zone = self.get_next_zone(drone)
                 if next_zone.zone_type == ZoneType.RESTRICTED:
                     self.move_restricted_drone(drone)
@@ -260,12 +262,17 @@ class Simulator:
                         next_zone
                     )
                     move = f"{drone.drone_id}: {self._colored(conn.name)}"
+                    frame[drone.drone_id] = conn.name
                 else:
                     move = f"{drone.drone_id}: {self._colored(next_zone.name)}"
                     self.move_normal_drone(drone, next_zone)
+                    frame[drone.drone_id] = next_zone.name
 
                 if move:
                     turn_moves.append(move)
+                if frame:
+                    self.frames.append(frame)
+
             if len(turn_moves) > 0:
                 self.turn_logs.append(" ".join(turn_moves))
 
@@ -273,3 +280,4 @@ class Simulator:
         print("turns: ", len(self.turn_logs), end="\n\n")
         for i, log in enumerate(self.turn_logs, start=1):
             print(f"Turn {i}: ", (log))
+        print("\nframes: ", self.frames)

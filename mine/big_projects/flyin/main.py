@@ -43,15 +43,15 @@ def main():
     sim.run()
     sim.get_output()
 
-    v = Visualizer(
-        sim.zones,
-        sim.conns
-    )
-    v.run()
+    # v = Visualizer(
+    #     sim.zones,
+    #     sim.conns
+    # )
+    # v.run()
 
 
 if __name__ == "__main__":
     try:
         main()
-    except Exception as e:
+    except KeyboardInterrupt as e:
         print(e)

@@ -1,5 +1,5 @@
 # from enum import Enum
-
+from typing import Tuple
 
 # class Color(str, Enum):
 #     Red = "red"
@@ -60,7 +60,7 @@ RGB_COLORS: dict[str, tuple[int, int, int]] = {
 DEFAULT_COLOR = (255, 255, 255)  # white
 
 
-def get_color(color: str) -> str | None:
+def get_color(color: str) -> Tuple[int, int, int]:
     try:
         return RGB_COLORS[color]
     except KeyError:

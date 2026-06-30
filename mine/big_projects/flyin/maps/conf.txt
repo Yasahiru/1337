@@ -1,5 +1,5 @@
 # Number of drones
-nb_drones: 8
+nb_drones: 5
 
 # Start and end hubs
 start_hub: base 0 0 [color=green]
@@ -7,24 +7,27 @@ end_hub: target 10 10 [color=yellow]
 
 
 # Zones
-hub: Z0 100 100 [zone=priority color=blue]
-hub: A1 200 100 [zone=normal color=blue]
-hub: B2 400 200 [zone=restricted color=red]
-hub: C3 600 300 [color=green max_drones=2 color=red]
-hub: D4 800 500 [color=blue color=yellow]
-hub: E5 500 600 [zone=blocked color=gray color=red]
-hub: F6 700 800 [color=orange max_drones=8 color=red]
+hub: Z0 1 1 [zone=priority color=blue]
+hub: A1 2 1 [zone=normal color=blue]
+hub: B2 4 2 [zone=restricted color=red]
+hub: C3 6 3 [color=green max_drones=2 color=red]
+#hub: D4 8 5 [color=blue color=yellow]
+#hub: E5 5 6 [zone=blocked color=gray color=red]
+#hub: F6 7 8 [color=orange max_drones=8 color=red]
 
 # Connections
-connection: base-A1
-connection: Z0-base
-connection: Z0-C3
+connection: base-A1 [max_link_capacity=2]
 connection: A1-B2
 connection: A1-C3
-connection: B2-C3
-connection: C3-D4 [max_link_capacity=2]
-connection: B2-D4 [max_link_capacity=2]
-connection: D4-target
-connection: A1-E5
-connection: E5-F6
-connection: F6-target
+connection: B2-target
+connection: C3-target
+
+#connection: Z0-base
+#connection: Z0-C3
+#connection: B2-C3
+#connection: C3-D4 [max_link_capacity=2]
+#connection: B2-D4 [max_link_capacity=2]
+#connection: D4-target
+#connection: A1-E5
+#connection: E5-F6
+#connection: F6-target

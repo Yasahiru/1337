@@ -1,5 +1,5 @@
 # Hard Level 1: Complex maze with multiple dead ends and loops
-nb_drones: 8
+nb_drones: 1
 
 start_hub: start 0 0 [color=green max_drones=8]
 hub: maze_a1 1 0 [color=blue]
