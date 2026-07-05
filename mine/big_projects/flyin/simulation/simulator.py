@@ -270,14 +270,12 @@ class Simulator:
 
                 if move:
                     turn_moves.append(move)
-                if frame:
-                    self.frames.append(frame)
 
             if len(turn_moves) > 0:
                 self.turn_logs.append(" ".join(turn_moves))
+                self.frames.append(frame)
 
     def get_output(self) -> None:
         print("turns: ", len(self.turn_logs), end="\n\n")
         for i, log in enumerate(self.turn_logs, start=1):
             print(f"Turn {i}: ", (log))
-        print("\nframes: ", self.frames)

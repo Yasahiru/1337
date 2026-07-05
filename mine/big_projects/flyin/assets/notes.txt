@@ -1,2 +1,3 @@
 
 duplication in the meta data key
+start / end  max Zones

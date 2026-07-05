@@ -7,7 +7,7 @@ end_hub: target 10 10 [color=yellow]
 
 
 # Zones
-hub: Z0 1 1 [zone=priority color=blue]
+hub: Z0 -1 1 [zone=priority color   =   blue]
 hub: A1 2 1 [zone=normal color=blue]
 hub: B2 4 2 [zone=restricted color=red]
 hub: C3 6 3 [color=green max_drones=2 color=red]

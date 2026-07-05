@@ -1,5 +1,5 @@
 import pygame
-from visualization.color import get_color
+from .color import get_color
 from model.zone import Zone
 
 
@@ -11,6 +11,7 @@ class Visualizer:
     ZONE_RADIUS = 30
     CONNECTION_WIDTH = 4
     MARGIN = 40
+    FRAME_TIME = 1000
 
     def __init__(self, zones, conns, frames):
         pygame.init()
@@ -20,13 +21,13 @@ class Visualizer:
             (self.WINDOW_WIDTH, self.WINDOW_HEIGHT)
         )
 
-        self.clock = pygame.time.Clock()
-        self.font = pygame.font.SysFont(None, 22)
         self.zones = zones
         self.conns = conns
         self.frames = frames
-        self.current_frame = 0
         self.compute_camera()
+        self.clock = pygame.time.Clock()
+        self.font = pygame.font.SysFont(None, 22)
+        self.current_frame = 0
 
     def get_zone_by_name(self, zone_name: str) -> Zone:
         for zone in self.zones:
@@ -104,24 +105,39 @@ class Visualizer:
     def draw_labels(self):
         for zone in self.zones:
             x, y = self.world_to_screen(zone.x, zone.y)
+            drones = len(zone.current_drones)
             label = self.font.render(
-                zone.name,
+                str(drones),
                 True,
                 (0, 0, 0),
             )
             rect = label.get_rect(
-                center=(x, y - 45)
+                center=(x, y)
             )
             self.screen.blit(label, rect)
 
     def run(self):
 
         running = True
+        last_update = pygame.time.get_ticks()
+
         while running:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     running = False
+                now = pygame.time.get_ticks()
 
+            if now - last_update > self.FRAME_TIME:
+                last_update = now
+
+            if self.current_frame < len(self.frames)-1:
+                self.current_frame += 1
+
+            frame = self.frames[self.current_frame]
+            for drone_id, zone in frame.items():
+                self.draw_zones()
+
+            # else
             self.screen.fill(self.BACKGROUND)
             self.draw_connections()
             self.draw_zones()
