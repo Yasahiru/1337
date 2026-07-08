@@ -1,13 +1,15 @@
 from model.zone_type import ZoneType
 from model.zone import Zone
+from model.connection import Connection
+from typing import Dict, List
 
 
 class GraphBuilder:
 
     def __init__(self, zones, connections) -> None:
-        self.zones = zones
-        self.connections = connections
-        self.graph = {}
+        self.zones: List[Zone] = zones
+        self.connections: List[Connection] = connections
+        self.graph: Dict[str, str] = {}
 
     def build_graph(self) -> dict:
         for zone in self.zones:

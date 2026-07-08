@@ -17,9 +17,8 @@ class Visualizer:
         pygame.init()
         pygame.display.set_caption("Flyin Simulation")
 
-        self.screen = pygame.display.set_mode(
-            (self.WINDOW_WIDTH, self.WINDOW_HEIGHT)
-        )
+        _mode = (self.WINDOW_WIDTH, self.WINDOW_HEIGHT)
+        self.screen = pygame.display.set_mode(_mode)
 
         self.zones = zones
         self.conns = conns
@@ -28,6 +27,7 @@ class Visualizer:
         self.clock = pygame.time.Clock()
         self.font = pygame.font.SysFont(None, 22)
         self.current_frame = 0
+        self.zone_coords = {}
 
     def get_zone_by_name(self, zone_name: str) -> Zone:
         for zone in self.zones:
@@ -35,7 +35,7 @@ class Visualizer:
                 return zone
         return None
 
-    def compute_camera(self):
+    def compute_camera(self) -> None:
         self.min_x = min(z.x for z in self.zones)
         self.max_x = max(z.x for z in self.zones)
         self.min_y = min(z.y for z in self.zones)
@@ -54,29 +54,21 @@ class Visualizer:
         self.offset_x = (self.WINDOW_WIDTH - map_width) / 2
         self.offset_y = (self.WINDOW_HEIGHT - map_height) / 2
 
-    def world_to_screen(self, x, y):
-        screen_x = int(
-            (x - self.min_x) * self.scale + self.offset_x
-        )
-        screen_y = int(
-            (y - self.min_y) * self.scale + self.offset_y
-        )
+    def world_to_screen(self, x, y) -> None:
+        _compute = (x - self.min_x) * self.scale + self.offset_x
+        screen_x = int(_compute)
+        _compute = (y - self.min_y) * self.scale + self.offset_y
+        screen_y = int(_compute)
 
         return screen_x, screen_y
 
-    def draw_connections(self):
+    def draw_connections(self) -> None:
         for conn in self.conns:
             zone1 = self.get_zone_by_name(conn.zone1)
             zone2 = self.get_zone_by_name(conn.zone2)
 
-            x1, y1 = self.world_to_screen(
-                zone1.x,
-                zone1.y
-            )
-            x2, y2 = self.world_to_screen(
-                zone2.x,
-                zone2.y
-            )
+            x1, y1 = self.world_to_screen(zone1.x, zone1.y)
+            x2, y2 = self.world_to_screen(zone2.x, zone2.y)
             pygame.draw.line(
                 self.screen,
                 (60, 60, 60),
@@ -85,9 +77,11 @@ class Visualizer:
                 self.CONNECTION_WIDTH,
             )
 
-    def draw_zones(self):
+    def draw_zones(self) -> None:
         for zone in self.zones:
             x, y = self.world_to_screen(zone.x, zone.y)
+            self.zone_coords[zone.name] = (x, y)
+
             pygame.draw.circle(
                 self.screen,
                 get_color(zone.color),
@@ -102,7 +96,7 @@ class Visualizer:
                 2,
             )
 
-    def draw_labels(self):
+    def draw_labels(self) -> None:
         for zone in self.zones:
             x, y = self.world_to_screen(zone.x, zone.y)
             drones = len(zone.current_drones)
@@ -111,37 +105,77 @@ class Visualizer:
                 True,
                 (0, 0, 0),
             )
-            rect = label.get_rect(
-                center=(x, y)
-            )
+            rect = label.get_rect(center=(x, y))
             self.screen.blit(label, rect)
+
+    def draw_drone(self, frame) -> None:
+        DRONE_RADIUS = 10
+
+        for drone_id, location in frame.items():
+            if isinstance(location, Zone):
+                x, y = self.zone_coords[location.name]
+            else:
+                x1, y1 = self.zone_coords[location.zone1]
+                x2, y2 = self.zone_coords[location.zone2]
+
+                x = (x1 + x2) // 2
+                y = (y1 + y2) // 2
+
+            pygame.draw.circle(
+                self.screen,
+                (255, 255, 255),
+                (x, y),
+                DRONE_RADIUS,
+            )
+
+            pygame.draw.circle(
+                self.screen,
+                (0, 0, 0),
+                (x, y),
+                DRONE_RADIUS,
+                2,
+            )
+
+            label = self.font.render(
+                drone_id,
+                True,
+                (0, 0, 0),
+            )
+
+            self.screen.blit(
+                label,
+                (x + 12, y - 8),
+            )
 
     def run(self):
 
-        running = True
+        frame_index = 0
         last_update = pygame.time.get_ticks()
 
+        running = True
+
         while running:
+
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     running = False
-                now = pygame.time.get_ticks()
 
-            if now - last_update > self.FRAME_TIME:
+            now = pygame.time.get_ticks()
+
+            if (
+                now - last_update >= self.FRAME_TIME
+                and frame_index < len(self.frames) - 1
+            ):
+                frame_index += 1
                 last_update = now
 
-            if self.current_frame < len(self.frames)-1:
-                self.current_frame += 1
-
-            frame = self.frames[self.current_frame]
-            for drone_id, zone in frame.items():
-                self.draw_zones()
-
-            # else
             self.screen.fill(self.BACKGROUND)
             self.draw_connections()
             self.draw_zones()
-            self.draw_labels()
+
+            if self.frames:
+                self.draw_drone(self.frames[frame_index])
+
             pygame.display.flip()
             self.clock.tick(60)
 

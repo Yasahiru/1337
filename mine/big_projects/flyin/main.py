@@ -13,10 +13,9 @@ def main():
     parser.load()
 
     # Validator
-    validator = Validator(
-        parser.zones,
-        parser.connections
-    )
+    _zones = parser.zones
+    _conns = parser.connections
+    validator = Validator(_zones, _conns)
 
     # kind, name, x, y, meta_data
     zones = validator.zones_obj()

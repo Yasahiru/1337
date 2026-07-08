@@ -6,15 +6,14 @@ import re
 class Parser:
     z_pattern = r"^(start_hub|end_hub|hub):\s+([^\s\-]+)\s+(-?\d+)"
     z_pattern += r"\s+(-?\d+)(?:\s+\[(.*)\])?$"
-
     ZONE_LINE_PATTERN = re.compile(z_pattern)
-    CONNECTION_LINE_PATTERN = re.compile(
-        r'^connection:\s+([^\s\-]+)-([^\s\-]+)(?:\s+\[(.*)\])?$'
-    )
 
-    ALLOWED_ZONE_TYPES = {"normal", "blocked", "restricted", "priority"}
-    ALLOWED_ZONE_METADATA = {"zone", "color", "max_drones", "zone_role"}
-    ALLOWED_CONNECTION_METADATA = {"max_link_capacity"}
+    conn_patt: str = r"^connection:\s+([^\s\-]+)-([^\s\-]+)(?:\s+\[(.*)\])?$"
+    CONNECTION_LINE_PATTERN = re.compile(conn_patt)
+
+    ALLOWED_ZONE_TYPES: Set[str] = {"normal", "blocked", "restricted", "priority"}
+    ALLOWED_ZONE_METADATA: Set[str] = {"zone", "color", "max_drones", "zone_role"}
+    ALLOWED_CONNECTION_METADATA: Set[str] = {"max_link_capacity"}
 
     def __init__(self, file_path: str) -> None:
         self.file_path: str = file_path
@@ -137,6 +136,7 @@ class Parser:
         for coord in self.coords:
             if coord == coords:
                 return True
+        return False
 
     def parse_connection(self, line_number: int, line: str) -> None:
         match = self.CONNECTION_LINE_PATTERN.match(line)

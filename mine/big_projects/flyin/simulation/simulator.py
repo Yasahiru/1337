@@ -1,24 +1,24 @@
 from model.drone import Drone
 from model.zone import Zone
 from model.zone_type import ZoneType
-from typing import Optional, List
 from model.connection import Connection
+from typing import Optional, List, Dict, Union
 
 
 class Simulator:
     def __init__(
         self, start, end, nb_drones, paths, zones, conns, graph
     ) -> None:
-        self.nb_drones = nb_drones
-        self.start = start
-        self.end = end
-        self.paths = paths
-        self.zones = zones
-        self.conns = conns
-        self.graph = graph
-        self.drones = []
-        self.turn_logs = []
-        self.frames = []
+        self.nb_drones: int = nb_drones
+        self.start: Zone = start
+        self.end: Zone = end
+        self.paths: List[str] = paths
+        self.zones: List[Zone] = zones
+        self.conns: List[Connection] = conns
+        self.graph: Dict[str, str] = graph
+        self.drones: List[Drone] = []
+        self.turn_logs: List[List[str]] = []
+        self.frames: List[Dict[str, Zone]] = []
 
     ANSI_COLORS: dict[str, str] = {
         # Standard ANSI
@@ -79,7 +79,7 @@ class Simulator:
             color_name.lower(), Simulator.DEFAULT_COLOR
         )
 
-    def get_zone_by_name(self, zone_name: str) -> Zone:
+    def get_zone_by_name(self, zone_name: str) -> Union[Zone, None]:
         for zone in self.zones:
             if zone.name == zone_name:
                 return zone
@@ -103,7 +103,6 @@ class Simulator:
             color_name = self.get_zone_by_name(name).color
             color = self._get_color(color_name)
             colored_str = (f"{color}{name}{RESET}")
-
         return colored_str
 
     def create_drones(self) -> None:
@@ -262,17 +261,26 @@ class Simulator:
                         next_zone
                     )
                     move = f"{drone.drone_id}: {self._colored(conn.name)}"
-                    frame[drone.drone_id] = conn.name
+                    frame[drone.drone_id] = conn
                 else:
                     move = f"{drone.drone_id}: {self._colored(next_zone.name)}"
                     self.move_normal_drone(drone, next_zone)
-                    frame[drone.drone_id] = next_zone.name
+                    frame[drone.drone_id] = next_zone
 
                 if move:
                     turn_moves.append(move)
 
-            if len(turn_moves) > 0:
+            if turn_moves:
                 self.turn_logs.append(" ".join(turn_moves))
+
+                frame = {}
+
+                for drone in self.drones:
+                    if drone.current_connection:
+                        frame[drone.drone_id] = drone.current_connection
+                    else:
+                        frame[drone.drone_id] = drone.current_location
+
                 self.frames.append(frame)
 
     def get_output(self) -> None:

@@ -1,4 +1,4 @@
-from typing import List, Dict
+from typing import List, Dict, Set
 
 
 class Algo:
@@ -7,9 +7,9 @@ class Algo:
         self.zones = zones
         self.graph = graph
 
-        self.distances = {}
+        self.distances: Dict = {}
         self.previous: Dict = {}
-        self.unvisited = set()
+        self.unvisited: Set = set()
 
     def load(self, start: str) -> None:
         for z in self.zones:
@@ -20,7 +20,7 @@ class Algo:
         self.unvisited = set(self.graph.keys())
 
     def get_min_unvisited(self) -> str:
-        mine_zone = None
+        mine_zone = ""
         min_dist = float("inf")
 
         for z in self.unvisited:
