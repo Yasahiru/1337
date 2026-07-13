@@ -18,8 +18,8 @@ class Simulator:
         self.graph: Dict[str, str] = graph
         self.drones: List[Drone] = []
         self.turn_logs: List[List[str]] = []
-        self.frames: List[Dict[str, Zone]] = []
-
+        self.frames: List[Dict[str, Union[Zone, Connection]]] = []
+    
     ANSI_COLORS: dict[str, str] = {
         # Standard ANSI
         "black": "\033[30m",
@@ -122,9 +122,9 @@ class Simulator:
 
         unique_paths = min(len(self.drones), len(self.paths))
         for i, drone in enumerate(self.drones):
-
             path_idx = i % unique_paths
             drone.assigned_path = self.paths[path_idx]
+
             drone.current_location = drone.assigned_path[0]
             self.start.current_drones.append(drone)
 

@@ -49,6 +49,12 @@ def main():
     )
     v.run()
 
+    for i, t in enumerate(sim.frames, start=1):
+        print(f"\nTurn: {i}")
+        for k, v in t.items():
+            print(k, v.name, sep=": ")
+        print()
+
 
 if __name__ == "__main__":
     try:
