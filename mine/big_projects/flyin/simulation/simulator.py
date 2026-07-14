@@ -149,25 +149,32 @@ class Simulator:
         return None
 
     def can_drone_move(self, drone: Drone) -> bool:
-        # print("can_drone_move")
-        next_zone = self.get_next_zone(drone)
-        if not next_zone:
-            return False
+
         if drone.is_delivered:
             return False
 
-        connection = self.find_connection(drone.current_location, next_zone)
+        next_zone = self.get_next_zone(drone)
 
-        if not connection:
+        if next_zone is None:
             return False
 
-        current_drones = len(connection.current_drones)
-        if current_drones >= connection.max_link_capacity:
+        conn = self.find_connection(
+            drone.current_location,
+            next_zone
+        )
+
+        if conn is None:
             return False
 
-        if next_zone != self.end:
-            if len(next_zone.current_drones) >= next_zone.max_drones:
-                return False
+        if len(conn.current_drones) >= conn.max_link_capacity:
+            return False
+
+        # Destination must have room BEFORE entering.
+        if (
+            next_zone != self.end
+            and len(next_zone.current_drones) >= next_zone.max_drones
+        ):
+            return False
 
         return True
 
@@ -190,98 +197,111 @@ class Simulator:
             drone.is_delivered = True
 
     def move_restricted_drone(self, drone: Drone) -> None:
-        # print("move_restricted_drone")
         zone = drone.current_location
-        zone.current_drones.remove(drone)
 
         next_zone = self.get_next_zone(drone)
-        conn = self.find_connection(zone=zone, dest=next_zone)
+        conn = self.find_connection(zone, next_zone)
 
         if not conn:
             return
 
+        zone.current_drones.remove(drone)
+
         conn.current_drones.append(drone)
-        drone.target_zone = next_zone
+
         drone.current_connection = conn
-        drone.turns_left = 2
+        drone.target_zone = next_zone
+        drone.turns_left = 1
 
-    def update_transit_drones(self) -> None:
-        # print("\nupdate_transit_drones")
+    def update_transit_drones(self) -> List[Drone]:
+        arrived = []
 
-        for d in self.drones:
-            if not d.current_connection:
+        for drone in self.drones:
+            if not drone.current_connection:
                 continue
 
-            d.turns_left -= 1
-            if d.turns_left > 0:
+            drone.turns_left -= 1
+
+            if drone.turns_left > 0:
                 continue
 
-            target = d.target_zone
-            conn = d.current_connection
+            conn = drone.current_connection
+            target = drone.target_zone
 
-            if d in conn.current_drones:
-                conn.current_drones.remove(d)
+            conn.current_drones.remove(drone)
 
-            if len(target.current_drones) >= target.max_drones:
-                continue
+            target.current_drones.append(drone)
 
-            target.current_drones.append(d)
-            d.current_location = target
-            d.path_index += 1
+            drone.current_location = target
+            drone.path_index += 1
 
-            d.target_zone = None
-            d.current_connection = None
-            d.turns_left = 0
+            drone.current_connection = None
+            drone.target_zone = None
+            drone.turns_left = 0
 
             if target == self.end:
-                d.is_delivered = True
-                continue
+                drone.is_delivered = True
+
+            arrived.append(drone)
+
+        return arrived
 
     def run(self) -> None:
         while not all(d.is_delivered for d in self.drones):
-            turn_moves = []
-            frame = {}
 
-            self.update_transit_drones()
+            turn_moves = []
+
+            arrived = self.update_transit_drones()
 
             for drone in self.drones:
+
                 if drone.is_delivered:
                     continue
+
+                # Drone has just arrived this turn.
+                if drone in arrived:
+                    continue
+
+                # Already crossing a restricted connection.
                 if drone.current_connection:
                     continue
+
                 if not self.can_drone_move(drone):
                     continue
 
-                move = None
                 next_zone = self.get_next_zone(drone)
+
                 if next_zone.zone_type == ZoneType.RESTRICTED:
+
                     self.move_restricted_drone(drone)
-                    conn = self.find_connection(
-                        drone.current_location,
-                        next_zone
+
+                    move = (
+                        f"{drone.drone_id}: "
+                        f"{self._colored(drone.current_connection.name)}"
                     )
-                    move = f"{drone.drone_id}: {self._colored(conn.name)}"
-                    frame[drone.drone_id] = conn
+
                 else:
-                    move = f"{drone.drone_id}: {self._colored(next_zone.name)}"
+
                     self.move_normal_drone(drone, next_zone)
-                    frame[drone.drone_id] = next_zone
 
-                if move:
-                    turn_moves.append(move)
+                    move = (
+                        f"{drone.drone_id}: "
+                        f"{self._colored(next_zone.name)}"
+                    )
 
-            if turn_moves:
-                self.turn_logs.append(" ".join(turn_moves))
+                turn_moves.append(move)
 
-                frame = {}
+            # Build frame every turn
+            frame = {}
 
-                for drone in self.drones:
-                    if drone.current_connection:
-                        frame[drone.drone_id] = drone.current_connection
-                    else:
-                        frame[drone.drone_id] = drone.current_location
+            for drone in self.drones:
+                if drone.current_connection:
+                    frame[drone.drone_id] = drone.current_connection
+                else:
+                    frame[drone.drone_id] = drone.current_location
 
-                self.frames.append(frame)
+            self.frames.append(frame)
+            self.turn_logs.append(" ".join(turn_moves))
 
     def get_output(self) -> None:
         print("turns: ", len(self.turn_logs), end="\n\n")

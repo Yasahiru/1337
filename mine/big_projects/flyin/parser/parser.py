@@ -11,8 +11,12 @@ class Parser:
     conn_patt: str = r"^connection:\s+([^\s\-]+)-([^\s\-]+)(?:\s+\[(.*)\])?$"
     CONNECTION_LINE_PATTERN = re.compile(conn_patt)
 
-    ALLOWED_ZONE_TYPES: Set[str] = {"normal", "blocked", "restricted", "priority"}
-    ALLOWED_ZONE_METADATA: Set[str] = {"zone", "color", "max_drones", "zone_role"}
+    ALLOWED_ZONE_TYPES: Set[str] = {
+        "normal", "blocked", "restricted", "priority"
+    }
+    ALLOWED_ZONE_METADATA: Set[str] = {
+        "zone", "color", "max_drones", "zone_role"
+    }
     ALLOWED_CONNECTION_METADATA: Set[str] = {"max_link_capacity"}
 
     def __init__(self, file_path: str) -> None:
@@ -29,10 +33,15 @@ class Parser:
 
         for line_number, line in content:
             stripped = line.strip()
+            if "#" in stripped:
+                _line = stripped.split("#")[0].strip()
+            else:
+                _line = stripped
+
             if stripped.startswith(("hub:", "start_hub:", "end_hub:")):
-                self.parse_zone(line_number, stripped)
+                self.parse_zone(line_number, _line)
             elif stripped.startswith("connection:"):
-                self.parse_connection(line_number, stripped)
+                self.parse_connection(line_number, _line)
             else:
                 raise ValueError(
                     f"Error in line {line_number}: unsupported line format"

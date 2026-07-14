@@ -3,7 +3,7 @@
 # by most algorithms. It's intended as a stress test and research challenge.
 # The goal is NOT to validate this map but to push algorithmic limits.
 
-nb_drones: 25
+nb_drones: 1
 
 # === LAYER 0: The Nightmare Begins ===
 start_hub: start 0 0 [color=green max_drones=25]

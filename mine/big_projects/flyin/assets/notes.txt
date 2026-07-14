@@ -1,3 +1,4 @@
 
-duplication in the meta data key
-start / end  max Zones
+
+Simulation:
+    check if the target restricted zone will be occupied 2 turns later

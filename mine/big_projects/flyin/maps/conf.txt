@@ -3,7 +3,7 @@ nb_drones: 3
 
 # Start and end hubs
 start_hub: base 0 1 [color=green]
-end_hub: target 5 1 [color=yellow]
+end_hub: target 5 1 [color=yellow] #sdfdsf
 
 
 # Zones
@@ -23,7 +23,7 @@ connection: D4-target
 #connection: Z0-base
 #connection: Z0-C3
 #connection: B2-C3
-#connection: C3-D4 [max_link_capacity=2]
+#connection: C3-D4 [max_link_capacity=2]   
 #connection: B2-D4 [max_link_capacity=2]
 #connection: D4-target
 #connection: A1-E5
