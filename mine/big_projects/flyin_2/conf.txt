@@ -1,0 +1,60 @@
+nb_drones: 10
+
+start_hub: START 0 0 [color=green max_drones=20]
+
+# ===== LEFT ROUTE =====
+hub: L1 1 1 [color=blue max_drones=2]
+hub: L2 2 1 [zone=restricted color=red max_drones=1]
+hub: L3 3 1 [color=blue max_drones=2]
+
+# ===== RIGHT ROUTE =====
+hub: R1 1 -1 [zone=priority color=yellow max_drones=2]
+hub: R2 2 -1 [color=cyan max_drones=2]
+hub: R3 3 -1 [zone=restricted color=orange max_drones=1]
+
+# ===== CENTER MERGE =====
+hub: M1 4 0 [color=magenta max_drones=2]
+hub: M2 5 0 [zone=restricted color=purple max_drones=1]
+hub: M3 6 0 [color=white max_drones=2]
+
+# ===== SECOND MERGE =====
+hub: X1 7 1 [color=green max_drones=1]
+hub: X2 7 -1 [color=green max_drones=1]
+
+hub: FINAL 8 0 [color=cyan max_drones=2]
+
+end_hub: GOAL 9 0 [color=yellow max_drones=20]
+
+
+# ---------- CONNECTIONS ----------
+
+connection: START-L1 [max_link_capacity=2]
+connection: START-R1 [max_link_capacity=2]
+
+connection: L1-L2 [max_link_capacity=1]
+connection: L2-L3 [max_link_capacity=1]
+
+connection: R1-R2
+connection: R2-R3 [max_link_capacity=1]
+
+connection: L3-M1
+connection: R3-M1
+
+connection: M1-M2 [max_link_capacity=1]
+connection: M2-M3 [max_link_capacity=1]
+
+connection: M3-X1
+connection: M3-X2
+
+connection: X1-FINAL
+connection: X2-FINAL
+
+connection: FINAL-GOAL #safsdf
+
+# Alternate route
+connection: R2-M1
+connection: L3-X1
+
+# Dead branch
+hub: DEAD 4 2 [zone=blocked color=black]
+connection: L3-DEAD
