@@ -42,6 +42,13 @@ def main():
     sim.run()
     sim.get_output()
 
+    # print()
+    # for d in sim.drones:
+    #     print(d.drone_id, end=": ")
+    #     for p in d.assigned_path:
+    #         print(p.name, end=" ")
+    #     print()
+
     v = Visualizer(
         sim.zones,
         sim.conns,
