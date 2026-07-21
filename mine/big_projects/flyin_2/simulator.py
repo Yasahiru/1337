@@ -162,6 +162,7 @@ class Simulator:
 
         if next_zone is None:
             return False
+
         conn = self.find_connection(
             drone.current_location,
             next_zone
@@ -174,8 +175,12 @@ class Simulator:
 
         future_occupancy = len(next_zone.current_drones)
         for d in self.drones:
+            if d == drone:
+                break
+
             if d.target_zone == next_zone:
                 future_occupancy += 1
+
         if next_zone is not self.end:
             if future_occupancy >= next_zone.max_drones:
                 return False
@@ -216,7 +221,6 @@ class Simulator:
                 continue
 
             drone.turns_left -= 1
-
             if drone.turns_left > 0:
                 continue
 
@@ -261,14 +265,12 @@ class Simulator:
                         f"{self._colored(drone.current_location.name)}"
                     )
                     continue
-
                 # Already crossing a restricted connection.
                 if drone.current_connection:
                     continue
 
                 if not self.can_drone_move(drone):
                     continue
-
                 next_zone = self.get_next_zone(drone)
                 if next_zone is None:
                     continue

@@ -1,6 +1,6 @@
 PYTHON := python3
 PIP := $(PYTHON) -m pip
-MAP := t.txt
+MAP := maps/challenger/01_the_impossible_dream.txt
 
 .PHONY: install run debug clean lint lint-strict
 
@@ -9,7 +9,7 @@ install:
 		$(PIP) install -U pygame mypy flake8;
 
 run:
-	$(PYTHON) main.py $(MAP)
+	$(PYTHON) main.py $(MAP) $(FLAG)
 
 debug:
 	$(PYTHON) -m pdb main.py
