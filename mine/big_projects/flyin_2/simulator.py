@@ -173,18 +173,18 @@ class Simulator:
         if len(conn.current_drones) >= conn.max_link_capacity:
             return False
 
-        future_occupancy = len(next_zone.current_drones)
-        for d in self.drones:
-            if d == drone:
-                break
+        if next_zone.zone_type == ZoneType.RESTRICTED:
+            if next_zone is not self.end:
+                future_occupancy = len(next_zone.current_drones)
+                for d in self.drones:
+                    if d is drone:
+                        break
 
-            if d.target_zone == next_zone:
-                future_occupancy += 1
+                    if d.target_zone is next_zone:
+                        future_occupancy += 1
 
-        if next_zone is not self.end:
-            if future_occupancy >= next_zone.max_drones:
-                return False
-
+                if future_occupancy >= next_zone.max_drones:
+                    return False
         return True
 
     def move_normal_drone(self, drone: Drone, next_zone: Zone) -> None:
@@ -217,22 +217,33 @@ class Simulator:
         arrived = []
 
         for drone in self.drones:
-            if not drone.current_connection:
+            if drone.current_connection is None:
                 continue
 
-            drone.turns_left -= 1
+            # Still travelling.
+            if drone.turns_left > 0:
+                drone.turns_left -= 1
+
             if drone.turns_left > 0:
                 continue
 
             conn = drone.current_connection
             target = drone.target_zone
+
             if target is None:
                 continue
 
-            if drone in conn.current_drones:
-                conn.current_drones.remove(drone)
+            # Destination still full: keep waiting on the connection.
+            if (
+                target is not self.end
+                and len(target.current_drones) >= target.max_drones
+            ):
+                continue
 
+            # Drone can finally enter the destination.
+            conn.current_drones.remove(drone)
             target.current_drones.append(drone)
+
             drone.current_location = target
             drone.path_index += 1
             drone.current_connection = None
