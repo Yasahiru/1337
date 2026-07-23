@@ -57,7 +57,7 @@ def main() -> None:
         sim.conns,
         sim.frames
     )
-    v.run()
+    # v.run()
 
 
 if __name__ == "__main__":

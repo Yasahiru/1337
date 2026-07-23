@@ -158,8 +158,8 @@ class Simulator:
     def can_drone_move(self, drone: Drone) -> bool:
         if drone.is_delivered:
             return False
-        next_zone = self.get_next_zone(drone)
 
+        next_zone = self.get_next_zone(drone)
         if next_zone is None:
             return False
 
@@ -173,18 +173,12 @@ class Simulator:
         if len(conn.current_drones) >= conn.max_link_capacity:
             return False
 
-        if next_zone.zone_type == ZoneType.RESTRICTED:
-            if next_zone is not self.end:
-                future_occupancy = len(next_zone.current_drones)
-                for d in self.drones:
-                    if d is drone:
-                        break
+        if next_zone is not self.end:
+            zone_cap = len(next_zone.current_drones)
+            capacity = next_zone.reserved_drones + zone_cap
+            if capacity >= next_zone.max_drones:
+                return False
 
-                    if d.target_zone is next_zone:
-                        future_occupancy += 1
-
-                if future_occupancy >= next_zone.max_drones:
-                    return False
         return True
 
     def move_normal_drone(self, drone: Drone, next_zone: Zone) -> None:
@@ -202,16 +196,19 @@ class Simulator:
         next_zone = self.get_next_zone(drone)
         if next_zone is None:
             return
-        conn = self.find_connection(zone, next_zone)
 
+        conn = self.find_connection(zone, next_zone)
         if not conn:
             return
 
-        zone.current_drones.remove(drone)
+        if drone in zone.current_drones:
+            zone.current_drones.remove(drone)
+
         conn.current_drones.append(drone)
         drone.current_connection = conn
         drone.target_zone = next_zone
-        drone.turns_left = 1
+        next_zone.reserved_drones += 1
+        # drone.turns_left = 1
 
     def update_transit_drones(self) -> List[Drone]:
         arrived = []
@@ -220,73 +217,65 @@ class Simulator:
             if drone.current_connection is None:
                 continue
 
-            # Still travelling.
-            if drone.turns_left > 0:
-                drone.turns_left -= 1
-
-            if drone.turns_left > 0:
-                continue
-
             conn = drone.current_connection
             target = drone.target_zone
-
             if target is None:
                 continue
 
-            # Destination still full: keep waiting on the connection.
-            if (
-                target is not self.end
-                and len(target.current_drones) >= target.max_drones
-            ):
-                continue
+            if target is not self.end:
+                if len(target.current_drones) >= target.max_drones:
+                    continue
 
-            # Drone can finally enter the destination.
-            conn.current_drones.remove(drone)
+            if drone in conn.current_drones:
+                conn.current_drones.remove(drone)
+
+            if target is not self.end:
+                target.reserved_drones -= 1
+
             target.current_drones.append(drone)
-
             drone.current_location = target
             drone.path_index += 1
             drone.current_connection = None
             drone.target_zone = None
-            drone.turns_left = 0
+            # drone.turns_left = 0
 
             if target is self.end:
                 drone.is_delivered = True
 
             arrived.append(drone)
-
         return arrived
 
     def run(self) -> None:
         while not all(d.is_delivered for d in self.drones):
 
             turn_moves = []
-
             arrived = self.update_transit_drones()
+            made_progress = len(arrived) > 0
 
             for drone in self.drones:
-
                 if drone.is_delivered:
                     continue
 
-                # Drone has just arrived this turn.
                 if drone in arrived:
                     turn_moves.append(
                         f"{drone.drone_id}: "
                         f"{self._colored(drone.current_location.name)}"
                     )
                     continue
-                # Already crossing a restricted connection.
+
                 if drone.current_connection:
                     continue
-
                 if not self.can_drone_move(drone):
                     continue
+
                 next_zone = self.get_next_zone(drone)
                 if next_zone is None:
                     continue
+
                 if next_zone.zone_type == ZoneType.RESTRICTED:
                     self.move_restricted_drone(drone)
+                    made_progress = True
+
                     conn = drone.current_connection
                     if conn is None:
                         continue
@@ -297,14 +286,18 @@ class Simulator:
 
                 else:
                     self.move_normal_drone(drone, next_zone)
+                    made_progress = True
                     move = (
                         f"{drone.drone_id}: "
                         f"{self._colored(next_zone.name)}"
                     )
 
                 turn_moves.append(move)
+            if not made_progress:
+                raise RuntimeError(
+                    f"Deadlock after {len(self.turn_logs)} turns."
+                )
 
-            # Build frame every turn
             frame: Dict[str, Union[Zone, Connection]] = {}
 
             for drone in self.drones:

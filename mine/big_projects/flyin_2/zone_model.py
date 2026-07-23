@@ -13,6 +13,7 @@ class Zone:
     name: str
     max_drones: int
     color: str = ""
+    reserved_drones: int = 0
     zone_type: ZoneType = ZoneType.NORMAL
     zone_role: ZoneRole = ZoneRole.REGULAR
     current_drones: list["Drone"] = field(default_factory=list)
