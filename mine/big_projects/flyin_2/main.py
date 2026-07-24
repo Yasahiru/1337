@@ -57,6 +57,7 @@ class Main:
 
 if __name__ == "__main__":
     try:
+        print("\033[0m")
         main = Main()
         main.run()
     except (Exception, KeyboardInterrupt) as e:
