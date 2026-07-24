@@ -85,6 +85,8 @@ class PathFinder:
                     raise ValueError(f"Unknown zone '{zone_name}' in path")
                 lst_zones.append(z)
             zone_paths.append(lst_zones)
+            if len(zone_paths) > 1:
+                return [zone_paths[0], zone_paths[1]]
         return (zone_paths)
 
     def extract_path(

@@ -17,6 +17,6 @@ class Drone:
     current_connection: Connection | None = None
 
     target_zone: Zone | None = None
-    # turns_left: int = 0
+    turns_left: int = 0
     is_delivered: bool = False
     path_index: int = 0

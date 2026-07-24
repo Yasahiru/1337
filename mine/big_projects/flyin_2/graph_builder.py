@@ -29,18 +29,14 @@ class GraphBuilder:
 
                     if weight < 0:
                         continue
-                    self.graph[zone.name].append(
-                        (conn.zone2, weight)
-                    )
+                    self.graph[zone.name].append((conn.zone2, weight))
                 elif conn.zone2 == zone.name:
                     dest = [z for z in self.zones if z.name == conn.zone1]
                     weight = self.get_zone_cost(dest[0])
                     if weight < 0:
                         continue
 
-                    self.graph[zone.name].append(
-                        (conn.zone1, weight)
-                    )
+                    self.graph[zone.name].append((conn.zone1, weight))
         return self.graph
 
     @staticmethod

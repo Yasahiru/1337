@@ -7,7 +7,7 @@ class Algo:
     def __init__(
         self,
         zones: List[Zone],
-            graph: Dict[str, List[Tuple[str, int]]],
+        graph: Dict[str, List[Tuple[str, int]]],
     ) -> None:
         self.zones = zones
         self.graph = graph
@@ -61,7 +61,7 @@ class Algo:
             zone = self.previous[zone]
 
         path.reverse()
-        return (path)
+        return path
 
     def dfs(
         self,
