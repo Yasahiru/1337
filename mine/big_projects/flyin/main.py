@@ -31,7 +31,7 @@ def main():
         nb_drones=parser.nb_drones,
         start=validator.start,
         end=validator.end,
-        paths=mult_paths,
+        paths=[mult_paths[0], mult_paths[1]],
         zones=zones,
         conns=conns,
         graph=paths.graph
