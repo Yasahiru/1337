@@ -19,6 +19,13 @@ class Solution:
         return (l1.val, l2.val)
 
     # converte the number into list[int]
+    def num_to_lst(self, number) -> List[int]:
+        nbs = []
+        while number > 9:
+            nbs.append(number % 10)
+            number = int(number / 10)
+        nbs.append(number)
+        return nbs
 
     def fill_lkd(self, vals: List[int]):
         nodes = []
@@ -26,10 +33,12 @@ class Solution:
             node = ListNode(v)
             nodes.append(node)
 
-        next_node = None
-        for n, i in enumerate(nodes, start=0):
-            next_node = nodes[i + 1]
-            n.next = next_node
+        i = 0
+        while i < len(nodes) - 1:
+            if i < len(nodes):
+                nodes[i].next = nodes[i + 1]
+            i += 1
+        return nodes
 
     def addTwoNumbers(
         self, l1: Optional[ListNode], l2: Optional[ListNode]
@@ -50,5 +59,6 @@ if __name__ == "__main__":
     head2 = ListNode(5, node3)
 
     s = Solution()
-    res = s.addTwoNumbers(head1, head2)
-    s.fill_lkd()
+    nums = s.addTwoNumbers(head1, head2)
+    lst = s.num_to_lst(nums)
+    lkd = s.fill_lkd(lst)
