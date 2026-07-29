@@ -12,15 +12,15 @@ class Solution:
     def get_number(self, l1: Optional[ListNode]) -> Tuple[int, int]:
         if l1.next:
             ret = self.get_number(l1.next)
-            res = (ret * 10 + l1.val)
-            return (res)
-        return (l1.val)
+            res = ret * 10 + l1.val
+            return res
+        return l1.val
 
     def num_to_lst(self, number) -> List[int]:
         nbs = []
         while number > 9:
             nbs.append(number % 10)
-            number = (number // 10)
+            number = number // 10
             print(number)
         nbs.append(number)
         return nbs
@@ -53,7 +53,7 @@ class Solution:
         print(nums)
         lst = self.num_to_lst(nums)
         lkd = self.fill_lkd(lst)
-        return (lkd)
+        return lkd
 
     def size(self, head: ListNode) -> int:
         count = 0
