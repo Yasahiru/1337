@@ -3,17 +3,17 @@
 # by most algorithms. It's intended as a stress test and research challenge.
 # The goal is NOT to validate this map but to push algorithmic limits.
 
-nb_drones: 25
+nb_drones: 10
 
 # === LAYER 0: The Nightmare Begins ===
-start_hub: start 0 0 [color=green max_drones=25] #dsfsd
+start_hub: start 0 0 [color=green] #dsfsd
 
 # Single-file entry gates (extreme bottleneck)
-hub: gate_hell1 1 0 [color=red max_drones=1]
-hub: gate_hell2 2 0 [color=red max_drones=1]
-hub: gate_hell3 3 0 [color=red max_drones=1]
-hub: gate_hell4 4 0 [color=red max_drones=1]
-hub: gate_hell5 5 0 [color=red max_drones=1]
+hub: gate_hell1 1 0 [color=red max_drones=1000]
+hub: gate_hell2 2 0 [color=red max_drones=1000]
+hub: gate_hell3 3 0 [color=red max_drones=1000]
+hub: gate_hell4 4 0 [color=red max_drones=1000]
+hub: gate_hell5 5 0 [color=red max_drones=1000]
 
 # === LAYER 1: The Maze of Despair ===
 # Multiple interconnected dead ends and loops

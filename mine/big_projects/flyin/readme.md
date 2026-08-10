@@ -1,199 +1,58 @@
-*This project has been created as part of the 42 curriculum by <hloutman>.
+*This project has been created as part of the 42 curriculum by <b>hloutman</b>.*
 
 # Fly-in Drone Simulator
 
 ## Description
-This project parses drone map files, validates the input format, and simulates multiple drones moving from a start hub to an end hub.
+This project implements a drone route simulation engine that reads a map definition, validates the input format, finds candidate delivery paths, and executes turn-by-turn drone movement from a start hub to an end hub.
 
-## Current state
-- Parser and map validator are implemented and enforce the required format.
-- A basic simulation engine is implemented with turn-by-turn drone movement.
-- The simulator handles zone capacities, connection capacities, and restricted-zone 2-turn movement.
+The goal is to model a constrained delivery environment where zones have capacity limits, connections have bandwidth constraints, and restricted zones require special movement handling.
 
-## Progress
-- **Current completion: 65%**
-- Completed:
-  - Input parsing and validation
-  - Zone and connection models
-  - Basic simulation engine and move output
-  - Multi-path allocation for drone dispatch
-- Next step:
-  - Add visual terminal output
-  - Add tests, linting, and README cleanup
+## Instructions
+1. Install dependencies:
+   - Run `make install` to install required Python packages.
+2. Execute the project:
+   - Run `make run` or `python main.py <map-file>`.
+   - Example: `python main.py maps/easy/01_linear_path.txt`
+3. Debug:
+   - Run `make debug` to start the project in Python's built-in debugger.
+4. Clean:
+   - Run `make clean` to remove generated caches and temporary files.
 
-## How to run
-```bash
-python main.py maps/easy/01_linear_path.txt
-```
+## Algorithm
+The project follows a layered architecture:
 
-## Notes
-- The project is written in Python 3.10+.
-- The next focus is on simulation quality and report formatting.
+- `parser.py` loads map files and validates format, zone metadata, and connections.
+- `validator.py` constructs `Zone` and `Connection` objects from the parsed input.
+- `graph_builder.py` builds a weighted graph representation from the zones and connections.
+- `path_finder.py` searches for delivery paths between the start and end hubs and ranks them by cost.
+- `simulator.py` runs the drone simulation, enforcing capacity and restricted-zone rules while moving drones turn by turn.
 
+The simulation checks:
 
+- whether a connection can accept another drone,
+- whether a zone has room for incoming drones,
+- how to handle delayed movement through restricted zones,
+- when a drone reaches the end hub and is marked delivered.
 
+## Visualization
+The project includes a visual component using `pygame`.
 
+- Zones are drawn as circles positioned according to their coordinates.
+- Connections are drawn as lines between linked zones.
+- Drones are displayed as moving markers on zones or midway along connections.
 
+This visual representation makes it easier to understand the simulation state, verify route selection, and see how restrictions and capacities influence drone movement.
 
+## Resources
+- Python documentation: https://docs.python.org/3/
+- Pygame documentation: https://www.pygame.org/docs/
+- Mypy type checking: https://mypy.readthedocs.io/
 
-Yes, that's a much better direction.
+### AI usage
+AI assistance was used for:
 
-Keep the pathfinding logic separate from `Validator`.
+- reviewing type annotations and `mypy` compatibility,
+- helping create the `Makefile` automation rules,
+- structuring this README and ensuring it met the required documentation sections.
 
-Something like:
-
-```text
-model/
-parser/
-simulation/
-    algo.py
-```
-
-is clean.
-
----
-
-I'd slightly change your class:
-
-```python
-class Algo:
-
-    def __init__(self, zones, graph):
-        self.zones = zones
-        self.graph = graph
-
-        self.distances = {}
-        self.previous = {}
-        self.unvisited = set()
-```
-
-You probably don't need `conns` anymore once the graph is built.
-
----
-
-Your `load()` should initialize all Dijkstra structures:
-
-```python
-def load(self, start):
-    for zone in self.zones:
-        self.distances[zone.name] = float("inf")
-
-    self.distances[start] = 0
-
-    self.unvisited = set(self.graph.keys())
-```
-
-Then test:
-
-```python
-algo = Algo(zones, graph)
-
-algo.load("base")
-
-print(algo.distances)
-print(algo.unvisited)
-```
-
-Expected:
-
-```python
-{
-    "base": 0,
-    "A1": inf,
-    "B2": inf,
-    ...
-}
-```
-
-and
-
-```python
-{
-    "base",
-    "A1",
-    "B2",
-    ...
-}
-```
-
----
-
-### After that
-
-Create a method:
-
-```python
-def get_current_node(self):
-```
-
-whose job is:
-
-```python
-return min(
-    self.unvisited,
-    key=lambda node: self.distances[node]
-)
-```
-
-Test:
-
-```python
-print(algo.get_current_node())
-```
-
-Expected:
-
-```text
-base
-```
-
-because:
-
-```python
-base = 0
-everything else = inf
-```
-
----
-
-### Then
-
-Create another method:
-
-```python
-def get_neighbors(self, node):
-    return self.graph[node]
-```
-
-Test:
-
-```python
-print(algo.get_neighbors("A1"))
-```
-
-Expected:
-
-```python
-["base", "B2", "E5"]
-```
-
----
-
-Once these three methods work:
-
-```python
-load()
-get_current_node()
-get_neighbors()
-```
-
-you're ready to write the main Dijkstra loop:
-
-```python
-while self.unvisited:
-    current = self.get_current_node()
-
-    ...
-```
-
-Don't jump directly into the full algorithm. Build and test these small pieces first. It will save you a lot of debugging later.
+AI was not used to implement the core simulation logic; it supported tooling, documentation, and code review only.

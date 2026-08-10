@@ -1,64 +1,74 @@
 import sys
-from parser.parser import Parser
-from parser.validator import Validator
-from simulation.path_finder import PathFinder
-from simulation.simulator import Simulator
-from visualization.visualizer import Visualizer
+from parser import Parser
+from validator import Validator
+from path_finder import PathFinder
+from simulator import Simulator
+from visualizer import Visualizer
 
 
-def main():
-    # Parser
-    file_path = sys.argv[1]
-    parser = Parser(file_path)
-    parser.load()
+class Main:
 
-    # Validator
-    _zones = parser.zones
-    _conns = parser.connections
-    validator = Validator(_zones, _conns)
+    def run(self) -> None:
 
-    # kind, name, x, y, meta_data
-    zones = validator.zones_obj()
-    conns = validator.connection_obj()
+        FLAG = False
+        ARG = sys.argv[1]
+        print(len(sys.argv), sys.argv[1])
+        if len(sys.argv) == 3 and sys.argv[1] == "--capacity-info":
+            FLAG = True
+            ARG = sys.argv[2]
 
-    # Paths finder
-    paths = PathFinder(zones, conns, validator.start, validator.end)
-    paths.load()
+        # Parser
+        file_path = ARG
+        parser = Parser(file_path)
+        parser.load()
 
-    mult_paths = paths.get_multiple_paths()
+        # Validator
+        _zones = parser.zones
+        _conns = parser.connections
+        validator = Validator(_zones, _conns, parser.nb_drones)
 
-    sim = Simulator(
-        nb_drones=parser.nb_drones,
-        start=validator.start,
-        end=validator.end,
-        paths=[mult_paths[0], mult_paths[1]],
-        zones=zones,
-        conns=conns,
-        graph=paths.graph
-    )
-    sim.create_drones()
-    sim.assign_drones_to_paths()
+        # kind, name, x, y, meta_data
+        zones = validator.zones_obj()
+        conns = validator.connection_obj()
 
-    sim.run()
-    sim.get_output()
+        # Paths finder
+        if validator.start is None or validator.end is None:
+            raise ValueError("Missing start or end zone definition")
 
-    # print()
-    # for d in sim.drones:
-    #     print(d.drone_id, end=": ")
-    #     for p in d.assigned_path:
-    #         print(p.name, end=" ")
-    #     print()
+        paths = PathFinder(zones, conns, validator.start, validator.end)
+        paths.load()
 
-    v = Visualizer(
-        sim.zones,
-        sim.conns,
-        sim.frames
-    )
-    v.run()
+        mult_paths = paths.get_multiple_paths()
+
+        sim = Simulator(
+            nb_drones=parser.nb_drones,
+            start=validator.start,
+            end=validator.end,
+            paths=mult_paths,
+            zones=zones,
+            conns=conns,
+            graph=paths.graph,
+            flag=FLAG
+        )
+        sim.create_drones()
+        sim.assign_drones_to_paths()
+
+        sim.run()
+        sim.get_output()
+
+        v = Visualizer(
+            sim.zones,
+            sim.conns,
+            sim.frames
+        )
+        v.run()
 
 
 if __name__ == "__main__":
     try:
-        main()
-    except Exception as e:
+        print("\033[H\033[J", end="\n")
+        main = Main()
+        main.run()
+    except (Exception, KeyboardInterrupt) as e:
         print(e)
+    ...

@@ -1,4 +1,0 @@
-
-
-Simulation:
-    check if the target restricted zone will be occupied 2 turns later
