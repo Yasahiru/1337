@@ -5,7 +5,7 @@ PIP := $(PYTHON) -m pip
 
 install:
         $(PYTHON) -m pip install --upgrade pip
-        $(PIP) install -U mypy flake8 pydantic;
+        $(PIP) install -U mypy flake8 pydantic numpy
 
 run:
         $(PYTHON) main.py
