@@ -1,15 +1,16 @@
 PYTHON      = python3
-PIP         = pip3
+PIP         = $(PYTHON) -m pip
 MAIN        = a_maze_ing.py
 CONFIG      = config.txt
-PACKAGE_DIR = srcs
+
 
 all: install lint run
 
-.PHONY: install run debug clean lint lint-strict
+.PHONY: install run debug clean lint lint-strict package
 
 install:
 	$(PIP) install --upgrade pip
+	$(PIP) install build
 	$(PIP) install -e .
 
 run:
@@ -19,18 +20,17 @@ debug:
 	$(PYTHON) -m pdb $(MAIN) $(CONFIG)
 
 package:
-	python3 -m build
+	$(PYTHON) -m build
 	mv dist/mazegen-* .
-	rm -rf dist build *.egg-info
+	rm -rf dist
+	rm -rf build
+	rm -rf mazegen.egg-info
 
 clean:
 	rm -rf `find . -type d -name "__pycache__"`
-	rm -rf .mypy_cache
 	rm -rf .pytest_cache
-	rm -rf build/
-	rm -rf dist/
-	rm maze.txt
-	rm -rf *.egg-info
+	rm -rf .mypy_cache
+	rm -f maze.txt
 
 lint:
 	flake8 .

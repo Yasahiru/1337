@@ -1,6 +1,6 @@
-from typing import List, Tuple, Optional
-from srcs.cell_class import Cell
-from srcs.direction_class import Direction, ALL_DIRECTIONS
+from typing import List, Tuple, Optional, Set
+from .cell_class import Cell
+from .direction_class import Direction, ALL_DIRECTIONS
 import time
 
 
@@ -19,9 +19,8 @@ class Maze:
         self.height = height
         self.entry = entry
         self.exit = _exit
-
         self.grid: List[List[Cell]] = []
-        self.cells_42: set = set()
+        self.cells_42: Set[Tuple[int, int]] = set()
         self.initialize_grid()
 
     def initialize_grid(self) -> None:
@@ -48,7 +47,7 @@ class Maze:
         """Check if coordinates are inside the maze."""
         return 0 <= x < self.width and 0 <= y < self.height
 
-    def reset_visits(self):
+    def reset_visits(self) -> None:
         for row in self.grid:
             for cell in row:
                 cell.visited = False
@@ -75,6 +74,31 @@ class Maze:
         cell.remove_wall(direction)
         neighbor.remove_wall(direction.opposite())
 
+    def save_maze(self, filename: str, path_str: str) -> None:
+        """
+        Saves the maze in the hex-encoded format required by the subject.
+        """
+        try:
+            with open(filename, "w", encoding="utf-8") as f:
+                for y in range(self.height):
+                    row_hex = ""
+                    for x in range(self.width):
+                        cell = self.get_cell(x, y)
+                        row_hex += format(cell.walls, "X")
+                    f.write(row_hex + "\n")
+
+                f.write("\n")
+
+                f.write(f"{self.entry[0]},{self.entry[1]}\n")
+
+                f.write(f"{self.exit[0]},{self.exit[1]}\n")
+
+                f.write(f"{path_str}\n")
+
+            print(f"Successfully exported to {filename}")
+        except Exception as e:
+            print(f"Error saving output file: {e}")
+
 
 def print_maze(
     maze: Maze,
@@ -82,6 +106,7 @@ def print_maze(
     show_path: bool = True,
     wall_color: str = "\033[42m",
     animate: bool = False,
+    msg: bool = False,
 ) -> None:
     """
     Visual representation of the maze for the terminal.
@@ -97,7 +122,7 @@ def print_maze(
 
     h_canvas, w_canvas = maze.height * 2 + 1, maze.width * 2 + 1
     canvas = [[WALL for _ in range(w_canvas)] for _ in range(h_canvas)]
-    cells_42: set = maze.cells_42
+    cells_42: Set[Tuple[int, int]] = maze.cells_42
     for y in range(maze.height):
         for x in range(maze.width):
             cell = maze.get_cell(x, y)
@@ -148,11 +173,13 @@ def print_maze(
                             continue
                 print(canvas[y][x], end="")
             print()
+        print()
+        if msg:
+            print("Maze too small for '42' pattern.")
 
     if animate and show_path:
         for i in range(1, len(path_coords) + 1):
             render(i)
             time.sleep(0.05)
-        animate = not animate
     else:
         render()

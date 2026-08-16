@@ -57,7 +57,9 @@ class Config:
 
     def _validate_keys(self, data: Dict[str, str]) -> None:
         """Making sure all required keys exist."""
-        required_keys = {"WIDTH", "HEIGHT", "ENTRY", "EXIT", "OUTPUT_FILE", "PERFECT"}
+        required_keys = {"WIDTH", "HEIGHT", "ENTRY", "EXIT"}
+        required_keys.add("OUTPUT_FILE")
+        required_keys.add("PERFECT")
 
         for key in required_keys:
             if key not in data:

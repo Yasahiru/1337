@@ -9,11 +9,8 @@ description = "Reusable maze generation project"
 readme = "README.md"
 requires-python = ">=3.10"
 
-[tool.setuptools]
-package-dir = {"" = "srcs"}
-
 [tool.setuptools.packages.find]
-where = ["srcs"]
+include = ["mazegen*"]
 
 [tool.mypy]
 ignore_missing_imports = true

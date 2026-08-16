@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from srcs.direction_class import Direction, ALL_DIRECTIONS
+from .direction_class import Direction, ALL_DIRECTIONS
 
 
 @dataclass
