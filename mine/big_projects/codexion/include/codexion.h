@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   codexion.h                                         :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: hloutman <marvin@42.fr>                    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/09/07 21:16:18 by hloutman          #+#    #+#             */
+/*   Updated: 2026/09/07 21:16:20 by hloutman         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #ifndef CODEXION_H
 # define CODEXION_H
 
@@ -8,16 +20,18 @@
 # include <unistd.h>
 # include <string.h>
 
+# include "scheduler.h"
+# include "logger.h"
 
 typedef struct s_coder		t_coder;
-typedef struct s_dongle	t_dongle;
+typedef struct s_dongle		t_dongle;
 typedef struct s_heap		t_heap;
 typedef struct s_scheduler	t_scheduler;
 typedef struct s_simulation	t_simulation;
 
 struct s_simulation
 {
-	int					number_of_coders;
+	int					nbr_coders;
 
 	long				time_to_burnout;
 	long				time_to_compile;
@@ -38,5 +52,8 @@ struct s_simulation
 	int					stop;
 	long				start_time;
 };
+
+int		parse_arguments(int argc, char **argv, t_simulation *simulation);
+void	init_simulation(t_simulation sim);
 
 #endif

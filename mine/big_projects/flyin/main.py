@@ -54,14 +54,18 @@ class Main:
         sim.assign_drones_to_paths()
 
         sim.run()
-        sim.get_output()
+        for path in sim.paths:
+            for p in path:
+                print(p.name, end=" ")
+            print()
+        # sim.get_output()
 
-        v = Visualizer(
-            sim.zones,
-            sim.conns,
-            sim.frames
-        )
-        v.run()
+        # v = Visualizer(
+        #     sim.zones,
+        #     sim.conns,
+        #     sim.frames
+        # )
+        # v.run()
 
 
 if __name__ == "__main__":
