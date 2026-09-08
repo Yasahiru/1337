@@ -34,11 +34,4 @@ typedef struct s_scheduler
 	pthread_cond_t		condition;
 }	t_scheduler;
 
-typedef struct s_request
-{
-	t_coder	*t_coder;
-	long	arrivale_time;
-	long	deadline;
-}	t_request;
-
 #endif

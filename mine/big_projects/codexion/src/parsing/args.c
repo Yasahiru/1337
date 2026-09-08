@@ -6,7 +6,7 @@
 /*   By: hloutman <hloutman@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/06 17:12:05 by hloutman          #+#    #+#             */
-/*   Updated: 2026/09/07 21:12:15 by hloutman         ###   ########.fr       */
+/*   Updated: 2026/09/08 12:53:01 by hloutman         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,7 @@ static int	is_valid_number(char *str)
 	return (1);
 }
 
-int	parse_arguments(int ac, char **av, t_simulation *simulation)
+int	parse_arguments(int ac, char **av, t_simulation *sim)
 {
 	int	i;
 
@@ -42,16 +42,16 @@ int	parse_arguments(int ac, char **av, t_simulation *simulation)
 	}
 	if (strcmp(av[8], "fifo") != 0 && strcmp(av[8], "edf") != 0)
 		return (0);
-	simulation->number_of_coders = atoi(av[1]);
-	simulation->time_to_burnout = atoi(av[2]);
-	simulation->time_to_compile = atoi(av[3]);
-	simulation->time_to_debug = atoi(av[4]);
-	simulation->time_to_refactor = atoi(av[5]);
-	simulation->number_of_compiles_required = atoi(av[6]);
-	simulation->dongle_cooldown = atoi(av[7]);
+	sim->nbr_coders = atoi(av[1]);
+	sim->time_to_burnout = atoi(av[2]);
+	sim->time_to_compile = atoi(av[3]);
+	sim->time_to_debug = atoi(av[4]);
+	sim->time_to_refactor = atoi(av[5]);
+	sim->number_of_compiles_required = atoi(av[6]);
+	sim->dongle_cooldown = atoi(av[7]);
 	if (strcmp(av[8], "fifo") == 0)
-		simulation->scheduler_type = SC_FIFO;
+		sim->scheduler_type = SC_FIFO;
 	else
-		simulation->scheduler_type = SC_EDF;
+		sim->scheduler_type = SC_EDF;
 	return (1);
 }

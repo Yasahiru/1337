@@ -22,6 +22,7 @@
 
 # include "scheduler.h"
 # include "logger.h"
+# include "monitor.h"
 
 typedef struct s_coder		t_coder;
 typedef struct s_dongle		t_dongle;
@@ -32,12 +33,10 @@ typedef struct s_simulation	t_simulation;
 struct s_simulation
 {
 	int					nbr_coders;
-
 	long				time_to_burnout;
 	long				time_to_compile;
 	long				time_to_debug;
 	long				time_to_refactor;
-
 	int					number_of_compiles_required;
 	long				dongle_cooldown;
 	t_scheduler_type	scheduler_type;
@@ -51,9 +50,13 @@ struct s_simulation
 
 	int					stop;
 	long				start_time;
+	t_monitor			monitor;
 };
 
 int		parse_arguments(int argc, char **argv, t_simulation *simulation);
-void	init_simulation(t_simulation sim);
+
+int		init_simulation(t_simulation *sim);
+void	init_coders_dongles(t_simulation *sim);
+void	clean_up_sim(t_simulation *sim);
 
 #endif
