@@ -1,2 +1,10 @@
-1/ parse args
-2/ init.c: build 
+
+
+headers .h
+parsing - init
+heap
+coders
+dongles
+tasks
+monitor
+main

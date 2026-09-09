@@ -4,7 +4,9 @@ CC = cc
 CFLAGS = -Wall -Wextra -Werror -Iinclude #-fsanitize=address
 
 SRC = src/main.c \
-      src/parsing/args.c
+      src/parsing/args.c \
+      src/initialisation/init.c \
+      src/coder/coder.c \
 
 OBJ = $(SRC:.c=.o)
 
