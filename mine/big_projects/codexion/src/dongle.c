@@ -34,7 +34,8 @@ static int	wait_dongle(t_coder	*coder, t_dongle	*dongle)
 		if (
 			dongle->size > 0
 			&& dongle->queue[0].id == coder->id
-			&& get_deadline(coder) - dongle->release
+			&& dongle->is_taken == 0
+			&& get_time_ms() - dongle->release
 			>= coder->sim->cooldown
 		)
 			return (1);

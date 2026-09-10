@@ -18,7 +18,7 @@ int	main(int ac, char **av)
 	int				i;
 	pthread_t		monitor;
 	
-	printf("hh");
+
 	if (ac != 9)
 	{
 		printf("Not Enough arguments!!\n");
@@ -40,7 +40,7 @@ int	main(int ac, char **av)
 	i = 0;
 	while (i < sim.nbr_coders)
 	{
-		printf("between");
+
 		pthread_create(&sim.coders[i].thread, NULL,
 			coder_routine, &sim.coders[i]);
 		i++;
@@ -51,7 +51,7 @@ int	main(int ac, char **av)
 		pthread_join(sim.coders[i].thread, NULL);
 		i++;
 	}
-	// pthread_join(monitor, NULL);
+	pthread_join(monitor, NULL);
 	clean_up_sim(&sim);
 
 	return (0);

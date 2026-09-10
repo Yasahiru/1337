@@ -37,12 +37,12 @@ static int	take_dongles(t_coder	*coder)
 	}
 	else
 	{
-		if (take_dongle(coder, coder->right_dongle))
+		if (!take_dongle(coder, coder->right_dongle))
 			return (0);
-		if (take_dongle(coder, coder->left_dongle))
+		if (!take_dongle(coder, coder->left_dongle))
 		{
 			release_dongle(coder->right_dongle);
-			return (1);
+			return (0);
 		}
 	}
 	print_took_dongles(coder);
@@ -74,6 +74,7 @@ void	debug(t_coder *coder)
 {
 	long	debug_time;
 
+	pthread_mutex_lock(&coder->sim->pause);
 	if (coder->sim->simulation_running == 0)
 	{
 		pthread_mutex_unlock(&coder->sim->pause);
@@ -100,8 +101,8 @@ void	refactor(t_coder *coder)
 	}
 	pthread_mutex_unlock(&coder->sim->pause);
 	refactor_time = get_time_ms();
-	pthread_mutex_lock(&coder->sim->pause);
-	printf("%ld %d is debugging\n",
+	pthread_mutex_lock(&coder->sim->pause_print);
+	printf("%ld %d is refactoring\n",
 		refactor_time - coder->sim->start_time, coder->id);
 	pthread_mutex_unlock(&coder->sim->pause_print);
 	coder_sleep(coder, coder->sim->time_to_refactor);

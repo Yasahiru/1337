@@ -27,7 +27,7 @@ void	*coder_routine(void	*arg)
 			pthread_mutex_unlock(&coder->sim->pause);
 			break ;
 		}
-		pthread_mutex_lock(&coder->sim->pause);
+		pthread_mutex_unlock(&coder->sim->pause);
 		if (!compile(coder))
 			break ;
 		debug(coder);
