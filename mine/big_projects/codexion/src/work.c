@@ -6,7 +6,7 @@
 /*   By: hloutman <hloutman@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/09 03:50:31 by hloutman          #+#    #+#             */
-/*   Updated: 2026/09/09 04:08:44 by hloutman         ###   ########.fr       */
+/*   Updated: 2026/09/09 15:17:04 by hloutman         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,30 +23,90 @@ static void	print_took_dongles(t_coder *coder)
 	pthread_mutex_unlock(&coder->sim->pause_print);
 }
 
-static int  take_dongles(t_coder    *coder)
+static int	take_dongles(t_coder	*coder)
 {
-    if (coder->id % 2 == 0)
-    {
-        if (!take_dongle(coder, coder->left_dongle))
-            return (0);
-        if (!take_dongle(coder, coder->right_dongle))
-        {
-            release_dongle(coder->left_dongle);
-            return (0);
-        }
-    }
-    else
-    {
-        if (take_dongle(code, code->right_dongle))
-            return (0);
-        if (take_dongle(coder, coder->left_dongle))
+	if (coder->id % 2 == 0)
+	{
+		if (!take_dongle(coder, coder->left_dongle))
+			return (0);
+		if (!take_dongle(coder, coder->right_dongle))
+		{
+			release_dongle(coder->left_dongle);
+			return (0);
+		}
+	}
+	else
+	{
+		if (take_dongle(coder, coder->right_dongle))
+			return (0);
+		if (take_dongle(coder, coder->left_dongle))
 		{
 			release_dongle(coder->right_dongle);
 			return (1);
 		}
-    }
-    print_took_dongles(coder);
+	}
+	print_took_dongles(coder);
 	return (1);
 }
 
-//compile / debug / refactor
+int	compile(t_coder *coder)
+{
+	long	start_compile;
+
+	if (!take_dongles(coder))
+		return (0);
+	start_compile = get_time_ms();
+	pthread_mutex_lock(&coder->sim->pause_print);
+	printf("%ld %d is compiling\n",
+		start_compile - coder->sim->start_time, coder->id);
+	pthread_mutex_unlock(&coder->sim->pause_print);
+	pthread_mutex_lock(&coder->sim->pause);
+	coder->last_compile = start_compile;
+	coder->nbr_of_compilations++;
+	pthread_mutex_unlock(&coder->sim->pause);
+	coder_sleep(coder, coder->sim->time_to_compile);
+	release_dongle(coder->left_dongle);
+	release_dongle(coder->right_dongle);
+	return (1);
+}
+
+void	debug(t_coder *coder)
+{
+	long	debug_time;
+
+	if (coder->sim->simulation_running == 0)
+	{
+		pthread_mutex_unlock(&coder->sim->pause);
+		return ;
+	}
+	pthread_mutex_unlock(&coder->sim->pause);
+	debug_time = get_time_ms();
+	pthread_mutex_lock(&coder->sim->pause_print);
+	printf("%ld %d is debugging\n",
+		debug_time - coder->sim->start_time, coder->id);
+	pthread_mutex_unlock(&coder->sim->pause_print);
+	coder_sleep(coder, coder->sim->time_to_debug);
+}
+
+void	refactor(t_coder *coder)
+{
+	long	refactor_time;
+
+	pthread_mutex_lock(&coder->sim->pause);
+	if (coder->sim->simulation_running == 0)
+	{
+		pthread_mutex_unlock(&coder->sim->pause);
+		return ;
+	}
+	pthread_mutex_unlock(&coder->sim->pause);
+	refactor_time = get_time_ms();
+	pthread_mutex_lock(&coder->sim->pause);
+	printf("%ld %d is debugging\n",
+		refactor_time - coder->sim->start_time, coder->id);
+	pthread_mutex_unlock(&coder->sim->pause_print);
+	coder_sleep(coder, coder->sim->time_to_refactor);
+	pthread_mutex_lock(&coder->sim->pause);
+	if (coder->nbr_of_compilations == coder->sim->nbr_comp_req)
+		coder->done = 1;
+	pthread_mutex_unlock(&coder->sim->pause);
+}

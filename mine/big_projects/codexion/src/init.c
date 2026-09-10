@@ -6,7 +6,7 @@
 /*   By: hloutman <hloutman@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/07 21:11:51 by hloutman          #+#    #+#             */
-/*   Updated: 2026/09/09 03:36:05 by hloutman         ###   ########.fr       */
+/*   Updated: 2026/09/10 04:12:51 by hloutman         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,7 +56,7 @@ int	init_simulation(t_simulation *sim)
 	return (0);
 }
 
-void	cleanup_simulation(t_simulation *sim)
+void	clean_up_sim(t_simulation *sim)
 {
 	int	i;
 

@@ -6,31 +6,30 @@
 /*   By: hloutman <hloutman@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/09 03:38:23 by hloutman          #+#    #+#             */
-/*   Updated: 2026/09/09 03:49:37 by hloutman         ###   ########.fr       */
+/*   Updated: 2026/09/09 15:21:40 by hloutman         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "codexion.h"
 
-void	coder_routine(void	*arg)
+void	*coder_routine(void	*arg)
 {
 	t_coder	*coder;
 
 	coder = (t_coder *)arg;
 	if (coder->id % 2 != 0)
 		usleep(1000);
-
 	while (coder->done == 0)
 	{
 		pthread_mutex_lock(&coder->sim->pause);
 		if (coder->sim->simulation_running == 0)
 		{
 			pthread_mutex_unlock(&coder->sim->pause);
-			break;
+			break ;
 		}
 		pthread_mutex_lock(&coder->sim->pause);
 		if (!compile(coder))
-			break;
+			break ;
 		debug(coder);
 		refactor(coder);
 	}
@@ -48,7 +47,7 @@ void	coder_sleep(t_coder *coder, long duration)
 		if (coder->sim->simulation_running == 0)
 		{
 			pthread_mutex_unlock(&coder->sim->pause);
-			break;
+			break ;
 		}
 		pthread_mutex_unlock(&coder->sim->pause);
 		usleep(1000);

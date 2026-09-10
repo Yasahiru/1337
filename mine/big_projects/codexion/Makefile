@@ -1,12 +1,16 @@
 NAME = codexion
 
 CC = cc
-CFLAGS = -Wall -Wextra -Werror -Iinclude #-fsanitize=address
+CFLAGS = -Wall -Wextra -Werror -fsanitize=address -g
 
 SRC = src/main.c \
-      src/parsing/args.c \
-      src/initialisation/init.c \
-      src/coder/coder.c \
+      src/args.c \
+      src/init.c \
+	  src/work.c \
+	  src/heap.c \
+      src/coder.c \
+      src/dongle.c \
+      src/monitor.c \
 
 OBJ = $(SRC:.c=.o)
 

@@ -20,10 +20,10 @@
 # include <unistd.h>
 # include <string.h>
 
-typedef struct s_request t_request;
-typedef struct s_dongle t_dongle;
-typedef struct s_coder t_coder;
-typedef struct s_simulation t_simulation;
+typedef struct s_request	t_request;
+typedef struct s_dongle		t_dongle;
+typedef struct s_coder		t_coder;
+typedef struct s_simulation	t_simulation;
 
 typedef struct s_request
 {
@@ -34,7 +34,7 @@ typedef struct s_request
 typedef struct s_dongle
 {
 	pthread_mutex_t	pause_dongle;
-	t_request		quee[2];
+	t_request		queue[2];
 	int				size;
 	int				is_taken;
 	long			release;
@@ -66,8 +66,8 @@ struct s_simulation
 	long				time_to_compile;
 	long				time_to_debug;
 	long				time_to_refactor;
-	int					number_of_compiles_required;
-	long				dongle_cooldown;
+	int					nbr_comp_req;
+	long				cooldown;
 	t_scheduler_type	scheduler_type;
 
 	t_coder				*coders;
@@ -93,7 +93,6 @@ void		release_dongle(t_dongle *dongle);
 long		get_time_ms(void);
 
 void		insert_heap(t_dongle *dongle, t_request info);
-void		insert_down(t_dongle *dongle);
 t_request	pop_heap(t_dongle *dongle);
 
 int			compile(t_coder *coder);

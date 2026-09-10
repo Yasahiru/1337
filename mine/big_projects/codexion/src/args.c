@@ -6,7 +6,7 @@
 /*   By: hloutman <hloutman@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/06 17:12:05 by hloutman          #+#    #+#             */
-/*   Updated: 2026/09/08 12:53:01 by hloutman         ###   ########.fr       */
+/*   Updated: 2026/09/09 17:08:10 by hloutman         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,8 +47,8 @@ int	parse_arguments(int ac, char **av, t_simulation *sim)
 	sim->time_to_compile = atoi(av[3]);
 	sim->time_to_debug = atoi(av[4]);
 	sim->time_to_refactor = atoi(av[5]);
-	sim->number_of_compiles_required = atoi(av[6]);
-	sim->dongle_cooldown = atoi(av[7]);
+	sim->nbr_comp_req = atoi(av[6]);
+	sim->cooldown = atoi(av[7]);
 	if (strcmp(av[8], "fifo") == 0)
 		sim->scheduler_type = SC_FIFO;
 	else
