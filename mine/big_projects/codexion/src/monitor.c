@@ -6,7 +6,7 @@
 /*   By: hloutman <hloutman@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/09 18:30:28 by hloutman          #+#    #+#             */
-/*   Updated: 2026/09/09 18:34:13 by hloutman         ###   ########.fr       */
+/*   Updated: 2026/09/11 19:59:43 by hloutman         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,7 +73,7 @@ void	*monitor_routine(void *arg)
 		if (sim->simulation_running == 0)
 			return (pthread_mutex_unlock(&sim->pause), NULL);
 		pthread_mutex_unlock(&sim->pause);
-		usleep(1000);
+		// usleep(1000);
 		done_count = check_coders(sim);
 		if (done_count == -1)
 			return (NULL);

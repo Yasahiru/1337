@@ -43,6 +43,7 @@ typedef struct s_dongle
 typedef enum e_scheduler_type
 {
 	SC_FIFO,
+	SC_LIFO,
 	SC_EDF
 }	t_scheduler_type;
 
