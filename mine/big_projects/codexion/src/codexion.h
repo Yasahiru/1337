@@ -29,6 +29,7 @@ typedef struct s_request
 {
 	int		id;
 	long	deadline;
+	int		request_order;
 }	t_request;
 
 typedef struct s_dongle
@@ -78,6 +79,7 @@ struct s_simulation
 	pthread_mutex_t		pause;
 
 	int					simulation_running;
+	int					request_count;
 	long				start_time;
 };
 

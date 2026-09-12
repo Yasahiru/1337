@@ -6,7 +6,7 @@
 /*   By: hloutman <hloutman@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/09 15:20:34 by hloutman          #+#    #+#             */
-/*   Updated: 2026/09/11 17:20:33 by hloutman         ###   ########.fr       */
+/*   Updated: 2026/09/12 01:06:19 by hloutman         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,12 +21,16 @@ static long	get_deadline(t_coder	*coder)
 
 static void	set_deadline(t_coder	*coder, t_request	*info)
 {
+	pthread_mutex_lock(&coder->sim->pause);
+	info->request_order = coder->sim->request_count;
+	coder->sim->request_count++;
+	pthread_mutex_unlock(&coder->sim->pause);
 	if (coder->sim->scheduler_type == SC_FIFO)
-		info->deadline = get_time_ms();
+		info->deadline = info->request_order;
 	else if (coder->sim->scheduler_type == SC_EDF)
 		info->deadline = get_deadline(coder);
 	else
-		info->deadline = (-1) * get_time_ms();
+		info->deadline = -info->request_order;
 }
 
 static int	wait_dongle(t_coder	*coder, t_dongle	*dongle)

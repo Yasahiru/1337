@@ -6,7 +6,7 @@
 /*   By: hloutman <hloutman@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/07 21:11:51 by hloutman          #+#    #+#             */
-/*   Updated: 2026/09/10 04:12:51 by hloutman         ###   ########.fr       */
+/*   Updated: 2026/09/12 01:02:57 by hloutman         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,6 +39,7 @@ int	init_simulation(t_simulation *sim)
 {
 	sim->simulation_running = 1;
 	sim->start_time = get_time_ms();
+	sim->request_count = 0;
 	pthread_mutex_init(&sim->pause_print, NULL);
 	pthread_mutex_init(&sim->pause, NULL);
 	sim->coders = malloc(sizeof(t_coder)
