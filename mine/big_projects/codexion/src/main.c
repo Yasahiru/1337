@@ -6,7 +6,7 @@
 /*   By: hloutman <hloutman@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/06 17:08:48 by hloutman          #+#    #+#             */
-/*   Updated: 2026/09/11 16:02:34 by hloutman         ###   ########.fr       */
+/*   Updated: 2026/09/13 02:35:12 by hloutman         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,7 @@ int	main(int ac, char **av)
 
 	if (!parse_arguments(ac, av, &sim))
 		return (1);
-	if (init_simulation(&sim))
+	if (init_simulation(&sim) || atoi(av[6]) == 0)
 		return (1);
 	pthread_create(&monitor, NULL, monitor_routine, &sim);
 	i = 0;
