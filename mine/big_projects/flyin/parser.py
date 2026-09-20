@@ -19,7 +19,6 @@ class Parser:
     }
     ALLOWED_CONNECTION_METADATA: Set[str] = {"max_link_capacity"}
 
-
     def __init__(self, file_path: str) -> None:
         self.file_path: str = file_path
         self.nb_drones: int = 0
@@ -107,8 +106,13 @@ class Parser:
 
         x = int(x_str)
         y = int(y_str)
+        flag = 1
+
+        if line.startswith(("start_hub", "end_hub")):
+            flag = 0
+
         metadata = self._parse_metadata(
-            line_number, metadata_str, self.ALLOWED_ZONE_METADATA
+            line_number, metadata_str, self.ALLOWED_ZONE_METADATA, flag
         )
 
         zone_type = metadata.get("zone", "normal")
@@ -116,13 +120,6 @@ class Parser:
             raise ValueError(
                 f"Error in line {line_number}: invalid zone type '{zone_type}'"
             )
-
-        self._parse_positive_int(
-            line_number,
-            metadata.get("max_drones"),
-            "max_drones",
-            default=1,
-        )
 
         coords = (x, y)
         if self.is_coords_exist(coords):
@@ -179,7 +176,7 @@ class Parser:
             )
 
         metadata = self._parse_metadata(
-            line_number, metadata_str, self.ALLOWED_CONNECTION_METADATA
+            line_number, metadata_str, self.ALLOWED_CONNECTION_METADATA, 1
         )
 
         self._parse_positive_int(
@@ -187,6 +184,7 @@ class Parser:
             metadata.get("max_link_capacity"),
             "max_link_capacity",
             default=1,
+            flag=1
         )
 
         self.connections.append(
@@ -203,6 +201,7 @@ class Parser:
         line_number: int,
         metadata_str: str | None,
         allowed_keys: set[str],
+        flag: int
     ) -> Dict[str, str]:
         metadata: Dict[str, str] = {}
         if not metadata_str:
@@ -226,7 +225,7 @@ class Parser:
                     "must have a value"
                 )
             if key == "max_drones":
-                self._parse_positive_int(line_number, value, key)
+                self._parse_positive_int(line_number, value, key, flag=flag)
             metadata[key] = value
 
         return metadata
@@ -237,6 +236,7 @@ class Parser:
         value: str | None,
         field_name: str,
         default: int = 1,
+        flag: int = 1
     ) -> int:
         if value is None:
             return default
@@ -247,7 +247,7 @@ class Parser:
                 f"Error in line {line_number}: "
                 f"{field_name} must be greater than zero"
             )
-        if parsed_value <= 0:
+        if parsed_value <= 0 and flag == 1:
             raise ValueError(
                 f"Error in line {line_number}: "
                 f"{field_name} must be greater than zero"

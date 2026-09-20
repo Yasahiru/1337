@@ -58,14 +58,14 @@ class Main:
             for p in path:
                 print(p.name, end=" ")
             print()
-        # sim.get_output()
+        sim.get_output()
 
-        # v = Visualizer(
-        #     sim.zones,
-        #     sim.conns,
-        #     sim.frames
-        # )
-        # v.run()
+        v = Visualizer(
+            sim.zones,
+            sim.conns,
+            sim.frames
+        )
+        v.run()
 
 
 if __name__ == "__main__":
